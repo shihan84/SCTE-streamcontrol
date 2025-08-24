@@ -71,6 +71,8 @@ cd SCTE-streamcontrol
 - ✅ Health checks and verification
 - ✅ Monitoring and backup scripts
 - ✅ System optimization
+- ✅ Enhanced error handling and logging
+- ✅ Comprehensive testing and validation
 
 ### **Option 2: Automated Deployment (Standard)**
 ```bash
@@ -90,8 +92,10 @@ cd SCTE-streamcontrol
 - ✅ Firewall and security setup
 - ✅ Application deployment and startup
 - ✅ Health checks and verification
+- ✅ Enhanced error handling and logging
+- ✅ Comprehensive testing and validation
 
-### **Option 2: Manual SuperKabuki FFmpeg Installation**
+### **Option 3: Manual SuperKabuki FFmpeg Installation**
 ```bash
 # Install SuperKabuki FFmpeg separately
 sudo ./scripts/install-superkabuki-ffmpeg.sh
@@ -103,7 +107,7 @@ test-scte35.sh
 ./full-deploy.sh
 ```
 
-### **Option 3: Manual Installation**
+### **Option 4: Manual Installation**
 ```bash
 # System requirements
 - Ubuntu 20.04+ or Debian 10+
@@ -166,7 +170,8 @@ sudo ./uninstall-partial.sh     # Choose option 14 to show status
 
 ### **Updates and Maintenance**
 ```bash
-./update-from-github.sh       # Update repository (interactive)
+# Interactive update with conflict resolution
+./update-from-github.sh
 
 # Manual update process
 git pull origin master
@@ -175,31 +180,13 @@ npm run build
 pm2 reload scte35-app
 ```
 
-### **SuperKabuki FFmpeg Usage Examples**
-```bash
-# Test SuperKabuki FFmpeg installation
-test-scte35.sh
-
-# Enhanced SCTE-35 transcoding (preserves markers)
-ffmpeg -copyts -i input.ts -map 0 -c:v libx265 -c:a aac -c:d copy -muxpreload 0 -muxdelay 0 output.ts
-
-# Stream copy with SCTE-35 preservation
-ffmpeg -copyts -ss 200 -i input.ts -map 0 -c copy -muxpreload 0 -muxdelay 0 output.ts
-
-# Extract SCTE-35 data for analysis
-ffmpeg -i input.ts -map 0:d -f data -y output.bin
-
-# Validate SCTE-35 preservation
-./scripts/validate-scte35.sh input.ts output.ts
-```
-
-### **Testing and Verification**
+### **Enhanced Verification and Testing**
 ```bash
 # Run comprehensive deployment verification
 ./verify-deployment.sh
 
 # Test SuperKabuki FFmpeg installation
-test-scte35.sh
+test-ffmpeg-scte35.sh
 
 # Test streaming with FFmpeg
 ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://localhost:1935/live/test
@@ -208,6 +195,39 @@ ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://localhost:1935/live/t
 curl http://localhost/health
 curl http://localhost/stat
 ```
+
+### **Enhanced Deployment Features**
+The enhanced deployment scripts include:
+
+#### **🚀 Enhanced Error Handling**
+- Comprehensive error detection and recovery
+- Automatic rollback on critical failures
+- Detailed logging with timestamps
+- Progress indicators with ETA estimates
+
+#### **📊 Advanced Logging**
+- Real-time logging to console and file
+- Structured log format with timestamps
+- Error categorization and severity levels
+- Performance metrics and resource monitoring
+
+#### **🔧 System Optimization**
+- Automatic system resource optimization
+- File descriptor limits adjustment
+- Network stack tuning for streaming
+- Memory management improvements
+
+#### **🛡️ Enhanced Security**
+- Advanced firewall configuration
+- Fail2ban integration with custom rules
+- Security header optimization
+- SSL/TLS readiness checks
+
+#### **📈 Monitoring and Reporting**
+- Real-time deployment progress tracking
+- System health monitoring
+- Performance benchmarking
+- Comprehensive deployment reports
 
 ## 🧹 **Cleanup and Uninstallation**
 

@@ -1,0 +1,132 @@
+{
+  "startTime": "2025-08-24T11:45:10.651Z",
+  "formats": {
+    "HLS": {
+      "tests": [
+        {
+          "test": "Format availability check",
+          "success": true,
+          "details": "HLS is available",
+          "timestamp": "2025-08-24T11:45:11.360Z"
+        },
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created for HLS",
+          "timestamp": "2025-08-24T11:45:11.361Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed to start stream: Failed to start push stream",
+          "timestamp": "2025-08-24T11:45:11.515Z"
+        }
+      ],
+      "passed": 2,
+      "failed": 1
+    },
+    "DASH": {
+      "tests": [
+        {
+          "test": "Format availability check",
+          "success": true,
+          "details": "DASH is available",
+          "timestamp": "2025-08-24T11:45:11.534Z"
+        },
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created for DASH",
+          "timestamp": "2025-08-24T11:45:11.534Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed to start stream: Failed to start push stream",
+          "timestamp": "2025-08-24T11:45:11.595Z"
+        }
+      ],
+      "passed": 2,
+      "failed": 1
+    },
+    "SRT": {
+      "tests": [
+        {
+          "test": "Format availability check",
+          "success": true,
+          "details": "SRT is available",
+          "timestamp": "2025-08-24T11:45:11.603Z"
+        },
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created for SRT",
+          "timestamp": "2025-08-24T11:45:11.604Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed to start stream: Failed to start push stream",
+          "timestamp": "2025-08-24T11:45:11.663Z"
+        }
+      ],
+      "passed": 2,
+      "failed": 1
+    },
+    "RTMP": {
+      "tests": [
+        {
+          "test": "Format availability check",
+          "success": true,
+          "details": "RTMP is available",
+          "timestamp": "2025-08-24T11:45:11.673Z"
+        },
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created for RTMP",
+          "timestamp": "2025-08-24T11:45:11.673Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed to start stream: Failed to start push stream",
+          "timestamp": "2025-08-24T11:45:11.731Z"
+        }
+      ],
+      "passed": 2,
+      "failed": 1
+    },
+    "RTSP": {
+      "tests": [
+        {
+          "test": "Format availability check",
+          "success": true,
+          "details": "RTSP is available",
+          "timestamp": "2025-08-24T11:45:11.746Z"
+        },
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created for RTSP",
+          "timestamp": "2025-08-24T11:45:11.746Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed to start stream: Failed to start push stream",
+          "timestamp": "2025-08-24T11:45:12.130Z"
+        }
+      ],
+      "passed": 2,
+      "failed": 1
+    }
+  },
+  "scte35Events": [],
+  "summary": {
+    "totalTests": 15,
+    "passed": 10,
+    "failed": 5,
+    "errors": []
+  }
+}

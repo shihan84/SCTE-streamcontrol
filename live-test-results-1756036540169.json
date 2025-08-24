@@ -1,0 +1,113 @@
+{
+  "startTime": "2025-08-24T11:55:24.295Z",
+  "inputHlsUrl": "https://cloud.itassist.one/khaber24x7live/index.m3u8",
+  "formats": {
+    "HLS": {
+      "tests": [
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created successfully",
+          "timestamp": "2025-08-24T11:55:24.792Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed: Failed to start push stream",
+          "timestamp": "2025-08-24T11:55:24.896Z"
+        }
+      ],
+      "passed": 1,
+      "failed": 1,
+      "outputUrls": {},
+      "scte35Events": []
+    },
+    "DASH": {
+      "tests": [
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created successfully",
+          "timestamp": "2025-08-24T11:55:27.898Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed: Failed to start push stream",
+          "timestamp": "2025-08-24T11:55:27.963Z"
+        }
+      ],
+      "passed": 1,
+      "failed": 1,
+      "outputUrls": {},
+      "scte35Events": []
+    },
+    "SRT": {
+      "tests": [
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created successfully",
+          "timestamp": "2025-08-24T11:55:30.964Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed: Failed to start push stream",
+          "timestamp": "2025-08-24T11:55:31.032Z"
+        }
+      ],
+      "passed": 1,
+      "failed": 1,
+      "outputUrls": {},
+      "scte35Events": []
+    },
+    "RTMP": {
+      "tests": [
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created successfully",
+          "timestamp": "2025-08-24T11:55:34.034Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed: Failed to start push stream",
+          "timestamp": "2025-08-24T11:55:34.102Z"
+        }
+      ],
+      "passed": 1,
+      "failed": 1,
+      "outputUrls": {},
+      "scte35Events": []
+    },
+    "RTSP": {
+      "tests": [
+        {
+          "test": "Stream configuration creation",
+          "success": true,
+          "details": "Configuration created successfully",
+          "timestamp": "2025-08-24T11:55:37.103Z"
+        },
+        {
+          "test": "Stream start",
+          "success": false,
+          "details": "Failed: Failed to start push stream",
+          "timestamp": "2025-08-24T11:55:37.166Z"
+        }
+      ],
+      "passed": 1,
+      "failed": 1,
+      "outputUrls": {},
+      "scte35Events": []
+    }
+  },
+  "scte35Events": [],
+  "summary": {
+    "totalTests": 10,
+    "passed": 5,
+    "failed": 5,
+    "errors": []
+  }
+}

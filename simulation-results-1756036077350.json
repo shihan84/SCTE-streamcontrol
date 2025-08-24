@@ -1,0 +1,643 @@
+{
+  "startTime": "2025-08-24T11:47:51.888Z",
+  "formats": {
+    "HLS": {
+      "tests": [
+        {
+          "test": "HLS SCTE-35 tag support",
+          "success": true,
+          "details": "EXT-X-CUE-OUT/EXT-X-CUE-IN tags",
+          "timestamp": "2025-08-24T11:47:51.891Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Standard 30s ad break - M3U8 playlist tag insertion",
+          "timestamp": "2025-08-24T11:47:51.891Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Extended 60s ad break - M3U8 playlist tag insertion",
+          "timestamp": "2025-08-24T11:47:51.891Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Short 15s ad break - M3U8 playlist tag insertion",
+          "timestamp": "2025-08-24T11:47:51.891Z"
+        },
+        {
+          "test": "CUE-IN injection simulation",
+          "success": true,
+          "details": "Return to content - M3U8 playlist tag insertion",
+          "timestamp": "2025-08-24T11:47:51.891Z"
+        },
+        {
+          "test": "Multiple bitrate support",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:51.892Z"
+        },
+        {
+          "test": "Live and VOD compatibility",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:51.892Z"
+        },
+        {
+          "test": "DRM integration",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:51.892Z"
+        },
+        {
+          "test": "Ad break duration accuracy",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:51.892Z"
+        },
+        {
+          "test": "Playlist reload timing",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:51.892Z"
+        },
+        {
+          "test": "API availability",
+          "success": true,
+          "details": "HLS format available via API",
+          "timestamp": "2025-08-24T11:47:51.933Z"
+        },
+        {
+          "test": "SCTE-35 API endpoint",
+          "success": true,
+          "details": "SCTE-35 injection API accessible",
+          "timestamp": "2025-08-24T11:47:52.254Z"
+        }
+      ],
+      "passed": 12,
+      "failed": 0
+    },
+    "DASH": {
+      "tests": [
+        {
+          "test": "DASH SCTE-35 signaling",
+          "success": true,
+          "details": "XML manifest EventStream elements",
+          "timestamp": "2025-08-24T11:47:53.255Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Standard 30s ad break - MPD manifest EventStream update",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Extended 60s ad break - MPD manifest EventStream update",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Short 15s ad break - MPD manifest EventStream update",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "CUE-IN injection simulation",
+          "success": true,
+          "details": "Return to content - MPD manifest EventStream update",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "Multiple bitrate adaptation",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "Timeline-based events",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "Segment alignment",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "MPD update efficiency",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "Low-latency mode support",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:53.256Z"
+        },
+        {
+          "test": "API availability",
+          "success": true,
+          "details": "DASH format available via API",
+          "timestamp": "2025-08-24T11:47:53.279Z"
+        },
+        {
+          "test": "SCTE-35 API endpoint",
+          "success": true,
+          "details": "SCTE-35 injection API accessible",
+          "timestamp": "2025-08-24T11:47:53.288Z"
+        }
+      ],
+      "passed": 12,
+      "failed": 0
+    },
+    "SRT": {
+      "tests": [
+        {
+          "test": "SRT SCTE-35 transport",
+          "success": true,
+          "details": "MPEG-TS packet PID injection",
+          "timestamp": "2025-08-24T11:47:54.289Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Standard 30s ad break - MPEG-TS packet PID injection",
+          "timestamp": "2025-08-24T11:47:54.289Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Extended 60s ad break - MPEG-TS packet PID injection",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Short 15s ad break - MPEG-TS packet PID injection",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "CUE-IN injection simulation",
+          "success": true,
+          "details": "Return to content - MPEG-TS packet PID injection",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "Low latency delivery",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "Packet loss recovery",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "Encryption support",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "Stream bonding",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "Broadcast reliability",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:54.290Z"
+        },
+        {
+          "test": "API availability",
+          "success": true,
+          "details": "SRT format available via API",
+          "timestamp": "2025-08-24T11:47:54.298Z"
+        },
+        {
+          "test": "SCTE-35 API endpoint",
+          "success": true,
+          "details": "SCTE-35 injection API accessible",
+          "timestamp": "2025-08-24T11:47:54.306Z"
+        }
+      ],
+      "passed": 12,
+      "failed": 0
+    },
+    "RTMP": {
+      "tests": [
+        {
+          "test": "RTMP SCTE-35 metadata",
+          "success": true,
+          "details": "FLV container onCuePoint events",
+          "timestamp": "2025-08-24T11:47:55.308Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Standard 30s ad break - FLV metadata injection",
+          "timestamp": "2025-08-24T11:47:55.308Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Extended 60s ad break - FLV metadata injection",
+          "timestamp": "2025-08-24T11:47:55.308Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Short 15s ad break - FLV metadata injection",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "CUE-IN injection simulation",
+          "success": true,
+          "details": "Return to content - FLV metadata injection",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "Real-time delivery",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "Metadata richness",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "Server compatibility",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "CDN integration",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "Legacy system support",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:55.309Z"
+        },
+        {
+          "test": "API availability",
+          "success": true,
+          "details": "RTMP format available via API",
+          "timestamp": "2025-08-24T11:47:55.320Z"
+        },
+        {
+          "test": "SCTE-35 API endpoint",
+          "success": true,
+          "details": "SCTE-35 injection API accessible",
+          "timestamp": "2025-08-24T11:47:55.327Z"
+        }
+      ],
+      "passed": 12,
+      "failed": 0
+    },
+    "RTSP": {
+      "tests": [
+        {
+          "test": "RTSP SCTE-35 payload",
+          "success": true,
+          "details": "RTP payload extension headers",
+          "timestamp": "2025-08-24T11:47:56.328Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Standard 30s ad break - RTP payload extension",
+          "timestamp": "2025-08-24T11:47:56.328Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Extended 60s ad break - RTP payload extension",
+          "timestamp": "2025-08-24T11:47:56.328Z"
+        },
+        {
+          "test": "CUE-OUT injection simulation",
+          "success": true,
+          "details": "Short 15s ad break - RTP payload extension",
+          "timestamp": "2025-08-24T11:47:56.328Z"
+        },
+        {
+          "test": "CUE-IN injection simulation",
+          "success": true,
+          "details": "Return to content - RTP payload extension",
+          "timestamp": "2025-08-24T11:47:56.328Z"
+        },
+        {
+          "test": "IP camera integration",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:56.328Z"
+        },
+        {
+          "test": "RTCP feedback",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:56.329Z"
+        },
+        {
+          "test": "Session control",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:56.329Z"
+        },
+        {
+          "test": "Network efficiency",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:56.329Z"
+        },
+        {
+          "test": "Surveillance compatibility",
+          "success": true,
+          "details": "Feature supported",
+          "timestamp": "2025-08-24T11:47:56.329Z"
+        },
+        {
+          "test": "API availability",
+          "success": true,
+          "details": "RTSP format available via API",
+          "timestamp": "2025-08-24T11:47:56.337Z"
+        },
+        {
+          "test": "SCTE-35 API endpoint",
+          "success": true,
+          "details": "SCTE-35 injection API accessible",
+          "timestamp": "2025-08-24T11:47:56.348Z"
+        }
+      ],
+      "passed": 12,
+      "failed": 0
+    }
+  },
+  "scte35Events": [
+    {
+      "format": "HLS",
+      "eventType": "CUE-OUT",
+      "duration": 30,
+      "preRoll": 2,
+      "description": "Standard 30s ad break",
+      "timestamp": "2025-08-24T11:47:51.891Z",
+      "injectionMethod": "M3U8 playlist tag insertion",
+      "playerCompatibility": "High (HLS.js, Video.js, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036071891_ljvuo9oje"
+    },
+    {
+      "format": "HLS",
+      "eventType": "CUE-OUT",
+      "duration": 60,
+      "preRoll": 5,
+      "description": "Extended 60s ad break",
+      "timestamp": "2025-08-24T11:47:51.891Z",
+      "injectionMethod": "M3U8 playlist tag insertion",
+      "playerCompatibility": "High (HLS.js, Video.js, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036071891_e5fbowehz"
+    },
+    {
+      "format": "HLS",
+      "eventType": "CUE-OUT",
+      "duration": 15,
+      "preRoll": 0,
+      "description": "Short 15s ad break",
+      "timestamp": "2025-08-24T11:47:51.891Z",
+      "injectionMethod": "M3U8 playlist tag insertion",
+      "playerCompatibility": "High (HLS.js, Video.js, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036071891_bssb23ej6"
+    },
+    {
+      "format": "HLS",
+      "eventType": "CUE-IN",
+      "duration": 0,
+      "preRoll": 0,
+      "description": "Return to content",
+      "timestamp": "2025-08-24T11:47:51.891Z",
+      "injectionMethod": "M3U8 playlist tag insertion",
+      "playerCompatibility": "High (HLS.js, Video.js, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036071891_ace68jshl"
+    },
+    {
+      "format": "DASH",
+      "eventType": "CUE-OUT",
+      "duration": 30,
+      "preRoll": 2,
+      "description": "Standard 30s ad break",
+      "timestamp": "2025-08-24T11:47:53.255Z",
+      "injectionMethod": "MPD manifest EventStream update",
+      "playerCompatibility": "High (Dash.js, Shaka Player, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036073256_l56zkgww2"
+    },
+    {
+      "format": "DASH",
+      "eventType": "CUE-OUT",
+      "duration": 60,
+      "preRoll": 5,
+      "description": "Extended 60s ad break",
+      "timestamp": "2025-08-24T11:47:53.256Z",
+      "injectionMethod": "MPD manifest EventStream update",
+      "playerCompatibility": "High (Dash.js, Shaka Player, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036073256_nl8xgp2la"
+    },
+    {
+      "format": "DASH",
+      "eventType": "CUE-OUT",
+      "duration": 15,
+      "preRoll": 0,
+      "description": "Short 15s ad break",
+      "timestamp": "2025-08-24T11:47:53.256Z",
+      "injectionMethod": "MPD manifest EventStream update",
+      "playerCompatibility": "High (Dash.js, Shaka Player, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036073256_lijg3l9pm"
+    },
+    {
+      "format": "DASH",
+      "eventType": "CUE-IN",
+      "duration": 0,
+      "preRoll": 0,
+      "description": "Return to content",
+      "timestamp": "2025-08-24T11:47:53.256Z",
+      "injectionMethod": "MPD manifest EventStream update",
+      "playerCompatibility": "High (Dash.js, Shaka Player, ExoPlayer)",
+      "latency": "Segment duration (2-6s)",
+      "eventId": "scte_1756036073256_z15k7xa77"
+    },
+    {
+      "format": "SRT",
+      "eventType": "CUE-OUT",
+      "duration": 30,
+      "preRoll": 2,
+      "description": "Standard 30s ad break",
+      "timestamp": "2025-08-24T11:47:54.289Z",
+      "injectionMethod": "MPEG-TS packet PID injection",
+      "playerCompatibility": "Medium (SRT-compatible players)",
+      "latency": "Very low (<1s)",
+      "eventId": "scte_1756036074289_czi4m0g1b"
+    },
+    {
+      "format": "SRT",
+      "eventType": "CUE-OUT",
+      "duration": 60,
+      "preRoll": 5,
+      "description": "Extended 60s ad break",
+      "timestamp": "2025-08-24T11:47:54.290Z",
+      "injectionMethod": "MPEG-TS packet PID injection",
+      "playerCompatibility": "Medium (SRT-compatible players)",
+      "latency": "Very low (<1s)",
+      "eventId": "scte_1756036074290_eq4kgnbjv"
+    },
+    {
+      "format": "SRT",
+      "eventType": "CUE-OUT",
+      "duration": 15,
+      "preRoll": 0,
+      "description": "Short 15s ad break",
+      "timestamp": "2025-08-24T11:47:54.290Z",
+      "injectionMethod": "MPEG-TS packet PID injection",
+      "playerCompatibility": "Medium (SRT-compatible players)",
+      "latency": "Very low (<1s)",
+      "eventId": "scte_1756036074290_gyfqcpai7"
+    },
+    {
+      "format": "SRT",
+      "eventType": "CUE-IN",
+      "duration": 0,
+      "preRoll": 0,
+      "description": "Return to content",
+      "timestamp": "2025-08-24T11:47:54.290Z",
+      "injectionMethod": "MPEG-TS packet PID injection",
+      "playerCompatibility": "Medium (SRT-compatible players)",
+      "latency": "Very low (<1s)",
+      "eventId": "scte_1756036074290_mrl6cr5l5"
+    },
+    {
+      "format": "RTMP",
+      "eventType": "CUE-OUT",
+      "duration": 30,
+      "preRoll": 2,
+      "description": "Standard 30s ad break",
+      "timestamp": "2025-08-24T11:47:55.308Z",
+      "injectionMethod": "FLV metadata injection",
+      "playerCompatibility": "High (Flash, RTMP players)",
+      "latency": "Low (1-3s)",
+      "eventId": "scte_1756036075308_0nyjsngjq"
+    },
+    {
+      "format": "RTMP",
+      "eventType": "CUE-OUT",
+      "duration": 60,
+      "preRoll": 5,
+      "description": "Extended 60s ad break",
+      "timestamp": "2025-08-24T11:47:55.308Z",
+      "injectionMethod": "FLV metadata injection",
+      "playerCompatibility": "High (Flash, RTMP players)",
+      "latency": "Low (1-3s)",
+      "eventId": "scte_1756036075308_fd6h5l0h3"
+    },
+    {
+      "format": "RTMP",
+      "eventType": "CUE-OUT",
+      "duration": 15,
+      "preRoll": 0,
+      "description": "Short 15s ad break",
+      "timestamp": "2025-08-24T11:47:55.308Z",
+      "injectionMethod": "FLV metadata injection",
+      "playerCompatibility": "High (Flash, RTMP players)",
+      "latency": "Low (1-3s)",
+      "eventId": "scte_1756036075308_85r61zgwf"
+    },
+    {
+      "format": "RTMP",
+      "eventType": "CUE-IN",
+      "duration": 0,
+      "preRoll": 0,
+      "description": "Return to content",
+      "timestamp": "2025-08-24T11:47:55.309Z",
+      "injectionMethod": "FLV metadata injection",
+      "playerCompatibility": "High (Flash, RTMP players)",
+      "latency": "Low (1-3s)",
+      "eventId": "scte_1756036075309_5fq6l7jpf"
+    },
+    {
+      "format": "RTSP",
+      "eventType": "CUE-OUT",
+      "duration": 30,
+      "preRoll": 2,
+      "description": "Standard 30s ad break",
+      "timestamp": "2025-08-24T11:47:56.328Z",
+      "injectionMethod": "RTP payload extension",
+      "playerCompatibility": "Medium (RTSP clients, VLC)",
+      "latency": "Low (1-2s)",
+      "eventId": "scte_1756036076328_3bc7umbnh"
+    },
+    {
+      "format": "RTSP",
+      "eventType": "CUE-OUT",
+      "duration": 60,
+      "preRoll": 5,
+      "description": "Extended 60s ad break",
+      "timestamp": "2025-08-24T11:47:56.328Z",
+      "injectionMethod": "RTP payload extension",
+      "playerCompatibility": "Medium (RTSP clients, VLC)",
+      "latency": "Low (1-2s)",
+      "eventId": "scte_1756036076328_eev8wu9zg"
+    },
+    {
+      "format": "RTSP",
+      "eventType": "CUE-OUT",
+      "duration": 15,
+      "preRoll": 0,
+      "description": "Short 15s ad break",
+      "timestamp": "2025-08-24T11:47:56.328Z",
+      "injectionMethod": "RTP payload extension",
+      "playerCompatibility": "Medium (RTSP clients, VLC)",
+      "latency": "Low (1-2s)",
+      "eventId": "scte_1756036076328_trq13ez5h"
+    },
+    {
+      "format": "RTSP",
+      "eventType": "CUE-IN",
+      "duration": 0,
+      "preRoll": 0,
+      "description": "Return to content",
+      "timestamp": "2025-08-24T11:47:56.328Z",
+      "injectionMethod": "RTP payload extension",
+      "playerCompatibility": "Medium (RTSP clients, VLC)",
+      "latency": "Low (1-2s)",
+      "eventId": "scte_1756036076328_9yi9twipr"
+    }
+  ],
+  "summary": {
+    "totalTests": 60,
+    "passed": 60,
+    "failed": 0,
+    "errors": []
+  }
+}
