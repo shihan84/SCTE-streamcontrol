@@ -122,8 +122,11 @@ npm run build
 pm2 reload scte35-app
 ```
 
-### **Testing**
+### **Testing and Verification**
 ```bash
+# Run comprehensive deployment verification
+sudo ./test-deployment-verification.sh
+
 # Test streaming with FFmpeg
 ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://localhost:1935/live/test
 
@@ -268,6 +271,7 @@ The deployment script sets up PM2 with:
 ### **Management & Maintenance**
 - [Update Scripts](update-from-github.sh) - Automated repository updates
 - [Database Management](scripts/backup-database.sh) - Database backup and restoration
+- [Deployment Verification](test-deployment-verification.sh) - Comprehensive system testing
 
 ### **Troubleshooting**
 - **Comprehensive troubleshooting** in all deployment guides

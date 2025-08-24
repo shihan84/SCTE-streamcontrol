@@ -213,11 +213,6 @@ if ! command_exists nginx; then
     exit 1
 fi
 
-print_info "Creating Nginx configuration directories..."
-sudo mkdir -p /etc/nginx/conf.d
-sudo mkdir -p /var/log/nginx
-sudo touch /etc/nginx/nginx.conf
-
 print_info "Creating required directories..."
 sudo mkdir -p /var/www/rtmp/hls
 sudo mkdir -p /var/www/rtmp/dash
@@ -229,7 +224,6 @@ sudo tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
 user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
-include /etc/nginx/modules-enabled/*.conf;
 
 events {
     worker_connections 768;
@@ -485,9 +479,18 @@ else
 fi
 
 print_info "Starting and enabling Nginx..."
-sudo systemctl start nginx
+sudo systemctl daemon-reload
 sudo systemctl enable nginx
-sudo systemctl reload nginx
+sudo systemctl start nginx
+
+print_info "Verifying Nginx status..."
+if sudo systemctl is-active --quiet nginx; then
+    print_success "Nginx started successfully."
+else
+    print_error "Nginx failed to start!"
+    sudo journalctl -u nginx -n 20 --no-pager
+    exit 1
+fi
 
 print_success "Nginx installation and configuration completed."
 
