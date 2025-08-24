@@ -111,6 +111,18 @@ sudo systemctl restart nginx   # Restart Nginx
 sudo nginx -t                  # Test Nginx configuration
 ```
 
+### **Uninstallation Management**
+```bash
+# Complete uninstallation
+sudo ./uninstall.sh             # Remove all components
+
+# Partial uninstallation
+sudo ./uninstall-partial.sh     # Selective component removal
+
+# Quick status check
+sudo ./uninstall-partial.sh     # Choose option 14 to show status
+```
+
 ### **Updates and Maintenance**
 ```bash
 ./update-from-github.sh       # Update repository (interactive)
@@ -136,6 +148,45 @@ curl http://localhost/stat
 ```
 
 ## 🧹 **Cleanup and Uninstallation**
+
+### **Complete Uninstallation**
+```bash
+# Full uninstallation (removes everything)
+sudo ./uninstall.sh
+
+# This will remove:
+# - Application files and directories
+# - Nginx with RTMP module
+# - PM2 processes and configuration
+# - Database files
+# - System services
+# - Firewall rules
+# - Log files
+# - Backup files
+# - System users and groups
+```
+
+### **Partial Uninstallation**
+```bash
+# Selective component removal
+sudo ./uninstall-partial.sh
+
+# Available options:
+# 1. Application Only (keep database and config)
+# 2. Database Only (keep application and config)
+# 3. Nginx Only (keep application and database)
+# 4. PM2 Processes Only
+# 5. Log Files Only
+# 6. Backup Files Only
+# 7. Application + Database
+# 8. Nginx + PM2
+# 9. Application + Logs
+# 10. Database + Backups
+# 11. Clean Configuration Files
+# 12. Reset Application (keep database)
+# 13. Stop Services Only
+# 14. Show Current Status
+```
 
 ### **Manual Cleanup**
 ```bash
@@ -267,6 +318,8 @@ The deployment script sets up PM2 with:
 - **Automated deployment** with `./full-deploy.sh`
 - **Testing and verification** with `./test-deployment-verification.sh`
 - **Repository updates** with `./update-from-github.sh`
+- **Complete uninstallation** with `./uninstall.sh`
+- **Partial uninstallation** with `./uninstall-partial.sh`
 
 ### **Troubleshooting**
 - **Comprehensive troubleshooting** included in this README
