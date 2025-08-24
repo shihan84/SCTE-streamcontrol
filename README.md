@@ -114,8 +114,12 @@ sudo nginx -t                  # Test Nginx configuration
 ### **Updates and Maintenance**
 ```bash
 ./update-from-github.sh       # Update repository (interactive)
-./git-reset-pull.sh           # Quick repository update
-./backup.sh                   # Create backup
+
+# Manual update process
+git pull origin master
+npm install
+npm run build
+pm2 reload scte35-app
 ```
 
 ### **Testing**
@@ -130,20 +134,18 @@ curl http://localhost/stat
 
 ## 🧹 **Cleanup and Uninstallation**
 
-### **Complete Uninstallation**
+### **Manual Cleanup**
 ```bash
-# Run the uninstall script to remove everything
-./uninstall.sh
+# Stop services
+pm2 stop scte35-app
+sudo systemctl stop nginx
+
+# Remove application files
+rm -rf /home/ubuntu/SCTE-streamcontrol
+
+# Remove PM2 process
+pm2 delete scte35-app
 ```
-
-**The uninstall script removes:**
-- ✅ Next.js application and PM2 processes
-- ✅ Nginx configuration and RTMP module
-- ✅ Project files and directories
-- ✅ System configurations and services
-- ✅ Database files and logs
-- ✅ All installed dependencies (optional)
-
 ## 📊 **System Requirements**
 
 ### **Minimum Requirements**
@@ -261,13 +263,11 @@ The deployment script sets up PM2 with:
 
 ### **Deployment Guides**
 - [Complete Deployment Guide](COMPLETE_DEPLOYMENT_GUIDE.md) - Comprehensive deployment instructions
-- [Quick Start Guide](QUICK_START_UPDATED.md) - Fast setup instructions
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Step-by-step deployment process
+- [RTMP Module Fix Guide](NGINX_RTMP_MODULE_FIX_GUIDE.md) - RTMP module installation and troubleshooting
 
 ### **Management & Maintenance**
-- [GitHub Update Guide](GITHUB_UPDATE_README.md) - Repository management and updates
 - [Update Scripts](update-from-github.sh) - Automated repository updates
-- [Backup Procedures](backup.sh) - System backup and restoration
+- [Database Management](scripts/backup-database.sh) - Database backup and restoration
 
 ### **Troubleshooting**
 - **Comprehensive troubleshooting** in all deployment guides
@@ -365,9 +365,6 @@ sudo chmod -R 755 /home/ubuntu/SCTE-streamcontrol
 # Interactive update with conflict resolution
 ./update-from-github.sh
 
-# Quick reset-based update
-./git-reset-pull.sh
-
 # Manual update process
 git pull origin master
 npm install
@@ -377,14 +374,14 @@ pm2 reload scte35-app
 
 ### **Backup & Recovery**
 ```bash
-# Create backup
-./backup.sh
+# Create database backup
+./scripts/backup-database.sh
+
+# Restore database from backup
+./scripts/restore-database.sh
 
 # Automated backups (scheduled daily)
 crontab -l  # View backup schedule
-
-# Restore from backup
-# Check backup directory: ~/backups/
 ```
 
 ### **System Maintenance**
