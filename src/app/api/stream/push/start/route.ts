@@ -145,9 +145,21 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Get available formats
+    // Check if streamers are initialized
+    if (!GlobalInstanceManager.isInitialized()) {
+        return NextResponse.json(
+            { error: 'Streaming components not initialized. Please call /api/stream/push/init first.' },
+            { status: 400 }
+        );
+    }
+
+    const multiFormatStreamer = GlobalInstanceManager.getMultiFormatStreamer();
+
     if (!multiFormatStreamer) {
-      multiFormatStreamer = new MultiFormatStreamer(new MediaServer());
+        return NextResponse.json(
+            { error: 'MultiFormatStreamer not properly initialized' },
+            { status: 500 }
+        );
     }
 
     const availableFormats = multiFormatStreamer.getAvailableFormats();
