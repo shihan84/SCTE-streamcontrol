@@ -74,28 +74,7 @@ cd SCTE-streamcontrol
 - ✅ Enhanced error handling and logging
 - ✅ Comprehensive testing and validation
 
-### **Option 2: Automated Deployment (Standard)**
-```bash
-# Clone the repository
-git clone https://github.com/shihan84/SCTE-streamcontrol.git
-cd SCTE-streamcontrol
-
-# Run the standard deployment script
-./full-deploy.sh
-```
-
-**That's it!** The script will handle everything:
-- ✅ System updates and dependencies
-- ✅ SuperKabuki FFmpeg installation with SCTE-35 patch
-- ✅ Node.js, npm, and PM2 installation
-- ✅ Nginx with RTMP module configuration
-- ✅ Firewall and security setup
-- ✅ Application deployment and startup
-- ✅ Health checks and verification
-- ✅ Enhanced error handling and logging
-- ✅ Comprehensive testing and validation
-
-### **Option 3: Manual SuperKabuki FFmpeg Installation**
+### **Option 2: Manual SuperKabuki FFmpeg Installation**
 ```bash
 # Install SuperKabuki FFmpeg separately
 sudo ./scripts/install-superkabuki-ffmpeg.sh
@@ -104,10 +83,10 @@ sudo ./scripts/install-superkabuki-ffmpeg.sh
 test-scte35.sh
 
 # Then deploy the application
-./full-deploy.sh
+./deploy-full-with-ffmpeg.sh
 ```
 
-### **Option 4: Manual Installation**
+### **Option 3: Manual Installation**
 ```bash
 # System requirements
 - Ubuntu 20.04+ or Debian 10+
@@ -122,7 +101,7 @@ sudo apt install -y git curl wget
 # Clone and deploy
 git clone https://github.com/shihan84/SCTE-streamcontrol.git
 cd SCTE-streamcontrol
-./full-deploy.sh
+./deploy-full-with-ffmpeg.sh
 ```
 
 ## 🌐 **Access URLs After Deployment**
@@ -399,7 +378,6 @@ The deployment script sets up PM2 with:
 - **Comprehensive documentation** included in this README
 - **Full deployment guide**: `docs/FULL_DEPLOYMENT_WITH_FFMPEG.md`
 - **SuperKabuki integration**: `docs/SUPERKABUKI_INTEGRATION.md`
-- **Automated deployment**: `./full-deploy.sh`
 - **Complete deployment with FFmpeg**: `./deploy-full-with-ffmpeg.sh`
 - **Testing and verification**: `./verify-deployment.sh`
 - **Repository updates**: `./update-from-github.sh`
