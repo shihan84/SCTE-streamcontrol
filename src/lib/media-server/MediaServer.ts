@@ -110,9 +110,9 @@ export class MediaServer extends EventEmitter {
   }
 
   async start(): Promise<void> {
-    if (this.isRunning) {
-      throw new Error('Media server is already running');
-    }
+    // if (this.isRunning) {
+    //   throw new Error('Media server is already running');
+    // }
 
     try {
       // Create necessary directories

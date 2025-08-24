@@ -24,6 +24,7 @@ import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
+import FFmpegStatus from '@/components/FFmpegStatus'
 import { 
   Play, 
   Square, 
@@ -458,6 +459,127 @@ export default function Home() {
     targeting: {},
     metadata: {}
   })
+
+  // Multi-format streaming state
+  const [multiFormatConfig, setMultiFormatConfig] = useState({
+    name: '',
+    sourceUrl: '',
+    inputFormat: 'RTMP', // New field for input format selection
+    inputSettings: {
+      // RTMP settings
+      rtmp: {
+        enabled: true,
+        port: 1935,
+        chunkSize: 4096
+      },
+      // HLS settings
+      hls: {
+        enabled: false,
+        playlistReloadInterval: 10,
+        segmentDuration: 2
+      },
+      // SRT settings
+      srt: {
+        enabled: false,
+        port: 9001,
+        latency: 120,
+        overheadBandwidth: 25,
+        passphrase: ''
+      }
+    },
+    outputFormats: [
+      { format: 'HLS', enabled: true, settings: {}, url: '' },
+      { format: 'DASH', enabled: false, settings: {}, url: '' },
+      { format: 'SRT', enabled: false, settings: {}, url: '' },
+      { format: 'RTMP', enabled: false, settings: {}, url: '' },
+      { format: 'RTSP', enabled: false, settings: {}, url: '' }
+    ],
+    videoSettings: {
+      codec: 'libx264',
+      bitrate: 5,
+      resolution: '1920x1080',
+      framerate: '29.97',
+      gop: 12,
+      bFrames: 5,
+      profile: 'high',
+      pixelFormat: 'yuv420p'
+    },
+    audioSettings: {
+      codec: 'aac',
+      bitrate: 128,
+      sampleRate: 48000,
+      channels: 2
+    },
+    scte35Settings: {
+      enabled: true,
+      pid: 500,
+      nullPid: 8191,
+      autoInsert: false
+    },
+    outputSettings: {
+      hls: {
+        enabled: true,
+        segmentDuration: 2,
+        playlistLength: 6,
+        outputDir: './tmp/hls'
+      },
+      dash: {
+        enabled: false,
+        segmentDuration: 2,
+        playlistLength: 6,
+        outputDir: './tmp/dash'
+      },
+      srt: {
+        enabled: false,
+        port: 9000,
+        latency: 120,
+        overheadBandwidth: 25
+      },
+      rtmp: {
+        enabled: false,
+        port: 1935,
+        chunkSize: 4096
+      }
+    },
+    transcoding: {
+      enabled: true,
+      profiles: [
+        {
+          name: 'high',
+          video: { codec: 'libx264', bitrate: 5, resolution: '1920x1080', framerate: '29.97' },
+          audio: { codec: 'aac', bitrate: 128, sampleRate: 48000 }
+        },
+        {
+          name: 'medium',
+          video: { codec: 'libx264', bitrate: 2, resolution: '1280x720', framerate: '29.97' },
+          audio: { codec: 'aac', bitrate: 96, sampleRate: 48000 }
+        },
+        {
+          name: 'low',
+          video: { codec: 'libx264', bitrate: 1, resolution: '854x480', framerate: '29.97' },
+          audio: { codec: 'aac', bitrate: 64, sampleRate: 48000 }
+        }
+      ]
+    }
+  })
+
+  const [multiFormatStreamStatus, setMultiFormatStreamStatus] = useState<'stopped' | 'starting' | 'active' | 'stopping' | 'error'>('stopped')
+  const [multiFormatMetrics, setMultiFormatMetrics] = useState({
+    viewers: 0,
+    inputBitrate: 0,
+    outputBitrate: 0,
+    fps: 0,
+    audioLevel: -20,
+    latency: 0,
+    uptime: 0,
+    cpuUsage: 0,
+    memoryUsage: 0
+  })
+  const [multiFormatOutputUrls, setMultiFormatOutputUrls] = useState<Record<string, string>>({})
+  const [multiFormatSCTE35Events, setMultiFormatSCTE35Events] = useState<SCTEEvent[]>([])
+  const [scte35EventType, setScte35EventType] = useState<'CUE-OUT' | 'CUE-IN'>('CUE-OUT')
+  const [scte35EventDuration, setScte35EventDuration] = useState(30)
+  const [scte35PreRoll, setScte35PreRoll] = useState(2)
 
   // Simulate stream status updates
   useEffect(() => {
@@ -955,6 +1077,304 @@ export default function Home() {
     return <Badge variant={variant}>{status}</Badge>
   }
 
+  // Multi-format streaming functions
+  const startMultiFormatStream = async () => {
+    if (!multiFormatConfig.name || !multiFormatConfig.sourceUrl) {
+      toast({
+        title: "Configuration Error",
+        description: "Stream name and source URL are required",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      setMultiFormatStreamStatus('starting')
+
+      const response = await fetch('/api/stream/push/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(multiFormatConfig),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to start multi-format stream')
+      }
+
+      const result = await response.json()
+      
+      setMultiFormatStreamStatus('active')
+      setMultiFormatOutputUrls(result.outputUrls || {})
+      
+      toast({
+        title: "Multi-Format Stream Started",
+        description: `Stream '${multiFormatConfig.name}' started successfully`,
+      })
+
+      // Start metrics simulation
+      const metricsInterval = setInterval(() => {
+        if (multiFormatStreamStatus === 'active') {
+          setMultiFormatMetrics(prev => ({
+            ...prev,
+            viewers: Math.floor(Math.random() * 1000) + 100,
+            inputBitrate: multiFormatConfig.videoSettings.bitrate + (Math.random() - 0.5) * 0.5,
+            outputBitrate: multiFormatConfig.videoSettings.bitrate + (Math.random() - 0.5) * 0.5,
+            fps: parseFloat(multiFormatConfig.videoSettings.framerate) + (Math.random() - 0.5) * 0.1,
+            audioLevel: -20 + (Math.random() - 0.5) * 2,
+            latency: 2000 + (Math.random() - 0.5) * 100,
+            uptime: prev.uptime + 2,
+            cpuUsage: Math.min(100, Math.max(0, prev.cpuUsage + (Math.random() - 0.5) * 5)),
+            memoryUsage: Math.min(100, Math.max(0, prev.memoryUsage + (Math.random() - 0.5) * 3))
+          }))
+        }
+      }, 2000)
+
+      // Store interval ID for cleanup
+      ;(window as any).multiFormatMetricsInterval = metricsInterval
+
+    } catch (error) {
+      setMultiFormatStreamStatus('error')
+      toast({
+        title: "Failed to Start Stream",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const stopMultiFormatStream = async () => {
+    if (multiFormatStreamStatus !== 'active') {
+      toast({
+        title: "Stream Not Active",
+        description: "No active multi-format stream to stop",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      setMultiFormatStreamStatus('stopping')
+
+      const response = await fetch('/api/stream/push/stop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          streamName: multiFormatConfig.name
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to stop multi-format stream')
+      }
+
+      // Clear metrics interval
+      if ((window as any).multiFormatMetricsInterval) {
+        clearInterval((window as any).multiFormatMetricsInterval)
+      }
+
+      setMultiFormatStreamStatus('stopped')
+      setMultiFormatMetrics({
+        viewers: 0,
+        inputBitrate: 0,
+        outputBitrate: 0,
+        fps: 0,
+        audioLevel: -20,
+        latency: 0,
+        uptime: 0,
+        cpuUsage: 0,
+        memoryUsage: 0
+      })
+      setMultiFormatOutputUrls({})
+      
+      toast({
+        title: "Multi-Format Stream Stopped",
+        description: `Stream '${multiFormatConfig.name}' stopped successfully`,
+      })
+
+    } catch (error) {
+      setMultiFormatStreamStatus('error')
+      toast({
+        title: "Failed to Stop Stream",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const validateMultiFormatConfig = () => {
+    const errors: string[] = []
+
+    if (!multiFormatConfig.name.trim()) {
+      errors.push("Stream name is required")
+    }
+
+    if (!multiFormatConfig.sourceUrl.trim()) {
+      errors.push("Source URL is required")
+    }
+
+    // Input format validation
+    if (!['RTMP', 'HLS', 'SRT'].includes(multiFormatConfig.inputFormat)) {
+      errors.push("Invalid input format selected")
+    }
+
+    // Format-specific validation
+    if (multiFormatConfig.inputFormat === 'RTMP') {
+      if (multiFormatConfig.inputSettings.rtmp.port <= 0 || multiFormatConfig.inputSettings.rtmp.port > 65535) {
+        errors.push("RTMP port must be between 1 and 65535")
+      }
+      if (multiFormatConfig.inputSettings.rtmp.chunkSize <= 0) {
+        errors.push("RTMP chunk size must be positive")
+      }
+    }
+
+    if (multiFormatConfig.inputFormat === 'HLS') {
+      if (multiFormatConfig.inputSettings.hls.playlistReloadInterval <= 0) {
+        errors.push("HLS playlist reload interval must be positive")
+      }
+      if (multiFormatConfig.inputSettings.hls.segmentDuration <= 0) {
+        errors.push("HLS segment duration must be positive")
+      }
+    }
+
+    if (multiFormatConfig.inputFormat === 'SRT') {
+      if (multiFormatConfig.inputSettings.srt.port <= 0 || multiFormatConfig.inputSettings.srt.port > 65535) {
+        errors.push("SRT port must be between 1 and 65535")
+      }
+      if (multiFormatConfig.inputSettings.srt.latency < 0) {
+        errors.push("SRT latency cannot be negative")
+      }
+      if (multiFormatConfig.inputSettings.srt.overheadBandwidth < 0) {
+        errors.push("SRT overhead bandwidth cannot be negative")
+      }
+    }
+
+    const enabledFormats = multiFormatConfig.outputFormats.filter(f => f.enabled)
+    if (enabledFormats.length === 0) {
+      errors.push("At least one output format must be enabled")
+    }
+
+    if (multiFormatConfig.videoSettings.bitrate <= 0) {
+      errors.push("Video bitrate must be positive")
+    }
+
+    if (multiFormatConfig.audioSettings.bitrate <= 0) {
+      errors.push("Audio bitrate must be positive")
+    }
+
+    if (multiFormatConfig.scte35Settings.enabled) {
+      if (multiFormatConfig.scte35Settings.pid <= 0 || multiFormatConfig.scte35Settings.pid > 8191) {
+        errors.push("SCTE-35 PID must be between 1 and 8191")
+      }
+    }
+
+    if (errors.length > 0) {
+      toast({
+        title: "Configuration Validation Failed",
+        description: errors.join(", "),
+        variant: "destructive"
+      })
+      return false
+    }
+
+    toast({
+      title: "Configuration Valid",
+      description: "Multi-format stream configuration is valid",
+    })
+    return true
+  }
+
+  const injectSCTE35Event = async () => {
+    if (multiFormatStreamStatus !== 'active') {
+      toast({
+        title: "Stream Not Active",
+        description: "Please start a multi-format stream first",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      const response = await fetch('/api/stream/push/scte35', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          streamName: multiFormatConfig.name,
+          type: scte35EventType,
+          duration: scte35EventType === 'CUE-OUT' ? scte35EventDuration : 0,
+          preRoll: scte35EventType === 'CUE-OUT' ? scte35PreRoll : 0,
+          eventId: Date.now()
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to inject SCTE-35 event')
+      }
+
+      const event: SCTEEvent = {
+        id: Date.now().toString(),
+        eventId: Date.now(),
+        type: scte35EventType,
+        adDuration: scte35EventType === 'CUE-OUT' ? scte35EventDuration : 0,
+        preRollDuration: scte35EventType === 'CUE-OUT' ? scte35PreRoll : 0,
+        timestamp: new Date(),
+        status: scte35EventType === 'CUE-OUT' ? 'active' : 'completed'
+      }
+
+      setMultiFormatSCTE35Events(prev => [event, ...prev])
+
+      toast({
+        title: `SCTE-35 ${scte35EventType} Event Injected`,
+        description: `Event ID: ${event.eventId}, Duration: ${event.adDuration}s`,
+      })
+
+      // Simulate event completion
+      if (scte35EventType === 'CUE-OUT') {
+        setTimeout(() => {
+          setMultiFormatSCTE35Events(prev => prev.map(e => 
+            e.id === event.id ? { ...e, status: 'completed' } : e
+          ))
+        }, scte35EventDuration * 1000)
+      }
+
+    } catch (error) {
+      toast({
+        title: "Failed to Inject Event",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const getSCTE35Events = async () => {
+    try {
+      const response = await fetch(`/api/stream/push/scte35?streamName=${encodeURIComponent(multiFormatConfig.name)}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch SCTE-35 events')
+      }
+
+      const events = await response.json()
+      setMultiFormatSCTE35Events(events)
+
+      toast({
+        title: "SCTE-35 Events Refreshed",
+        description: `Loaded ${events.length} events`,
+      })
+
+    } catch (error) {
+      toast({
+        title: "Failed to Refresh Events",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -980,10 +1400,14 @@ export default function Home() {
 
         {/* Main Content */}
         <Tabs defaultValue="stream-control" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="stream-control" className="flex items-center space-x-2">
               <Play className="w-4 h-4" />
               <span>Stream Control</span>
+            </TabsTrigger>
+            <TabsTrigger value="multi-format" className="flex items-center space-x-2">
+              <Send className="w-4 h-4" />
+              <span>Multi-Format</span>
             </TabsTrigger>
             <TabsTrigger value="scte35" className="flex items-center space-x-2">
               <Radio className="w-4 h-4" />
@@ -1267,6 +1691,556 @@ export default function Home() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Multi-Format Streaming Tab */}
+          <TabsContent value="multi-format" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Stream Configuration */}
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Send className="w-5 h-5" />
+                    <span>Multi-Format Stream Push</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Configure and push live streams in multiple formats with SCTE-35 marker support
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="stream-name">Stream Name</Label>
+                      <Input
+                        id="stream-name"
+                        placeholder="Enter stream name"
+                        value={multiFormatConfig.name}
+                        onChange={(e) => setMultiFormatConfig(prev => ({ ...prev, name: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="source-url">Source URL</Label>
+                      <Input
+                        id="source-url"
+                        placeholder="rtmp://localhost:1935/live/test"
+                        value={multiFormatConfig.sourceUrl}
+                        onChange={(e) => setMultiFormatConfig(prev => ({ ...prev, sourceUrl: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="input-format">Input Format</Label>
+                    <Select value={multiFormatConfig.inputFormat} onValueChange={(value) => 
+                      setMultiFormatConfig(prev => ({ 
+                        ...prev, 
+                        inputFormat: value,
+                        // Update input settings based on selected format
+                        inputSettings: {
+                          ...prev.inputSettings,
+                          rtmp: { ...prev.inputSettings.rtmp, enabled: value === 'RTMP' },
+                          hls: { ...prev.inputSettings.hls, enabled: value === 'HLS' },
+                          srt: { ...prev.inputSettings.srt, enabled: value === 'SRT' }
+                        }
+                      }))
+                    }>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="RTMP">Real-Time Messaging Protocol (RTMP)</SelectItem>
+                        <SelectItem value="HLS">HTTP Live Streaming (HLS)</SelectItem>
+                        <SelectItem value="SRT">Secure Reliable Transport (SRT)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Input Format Settings */}
+                  {multiFormatConfig.inputFormat === 'RTMP' && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="text-sm font-medium">RTMP Input Settings</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="rtmp-port">RTMP Port</Label>
+                          <Input
+                            id="rtmp-port"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.rtmp.port}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                rtmp: { ...prev.inputSettings.rtmp, port: parseInt(e.target.value) || 1935 }
+                              }
+                            }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="rtmp-chunk-size">Chunk Size</Label>
+                          <Input
+                            id="rtmp-chunk-size"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.rtmp.chunkSize}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                rtmp: { ...prev.inputSettings.rtmp, chunkSize: parseInt(e.target.value) || 4096 }
+                              }
+                            }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {multiFormatConfig.inputFormat === 'HLS' && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="text-sm font-medium">HLS Input Settings</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="hls-reload-interval">Playlist Reload Interval (seconds)</Label>
+                          <Input
+                            id="hls-reload-interval"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.hls.playlistReloadInterval}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                hls: { ...prev.inputSettings.hls, playlistReloadInterval: parseInt(e.target.value) || 10 }
+                              }
+                            }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="hls-segment-duration">Segment Duration (seconds)</Label>
+                          <Input
+                            id="hls-segment-duration"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.hls.segmentDuration}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                hls: { ...prev.inputSettings.hls, segmentDuration: parseInt(e.target.value) || 2 }
+                              }
+                            }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {multiFormatConfig.inputFormat === 'SRT' && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="text-sm font-medium">SRT Input Settings</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="srt-port">SRT Port</Label>
+                          <Input
+                            id="srt-port"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.srt.port}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                srt: { ...prev.inputSettings.srt, port: parseInt(e.target.value) || 9001 }
+                              }
+                            }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="srt-latency">Latency (ms)</Label>
+                          <Input
+                            id="srt-latency"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.srt.latency}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                srt: { ...prev.inputSettings.srt, latency: parseInt(e.target.value) || 120 }
+                              }
+                            }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="srt-overhead">Overhead Bandwidth (%)</Label>
+                          <Input
+                            id="srt-overhead"
+                            type="number"
+                            value={multiFormatConfig.inputSettings.srt.overheadBandwidth}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                srt: { ...prev.inputSettings.srt, overheadBandwidth: parseInt(e.target.value) || 25 }
+                              }
+                            }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="srt-passphrase">Passphrase</Label>
+                          <Input
+                            id="srt-passphrase"
+                            type="password"
+                            value={multiFormatConfig.inputSettings.srt.passphrase}
+                            onChange={(e) => setMultiFormatConfig(prev => ({
+                              ...prev,
+                              inputSettings: {
+                                ...prev.inputSettings,
+                                srt: { ...prev.inputSettings.srt, passphrase: e.target.value }
+                              }
+                            }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Output Formats</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {[
+                        { id: 'HLS', name: 'HTTP Live Streaming', icon: '🌐' },
+                        { id: 'DASH', name: 'MPEG-DASH', icon: '📊' },
+                        { id: 'SRT', name: 'Secure Reliable Transport', icon: '🔒' },
+                        { id: 'RTMP', name: 'Real-Time Messaging Protocol', icon: '📡' },
+                        { id: 'RTSP', name: 'Real-Time Streaming Protocol', icon: '🎥' }
+                      ].map((format) => (
+                        <div key={format.id} className="flex items-center space-x-2 p-2 border rounded">
+                          <Switch
+                            checked={multiFormatConfig.outputFormats.find(f => f.format === format.id)?.enabled || false}
+                            onCheckedChange={(checked) => {
+                              setMultiFormatConfig(prev => ({
+                                ...prev,
+                                outputFormats: prev.outputFormats.map(f => 
+                                  f.format === format.id ? { ...f, enabled: checked } : f
+                                )
+                              }))
+                            }}
+                          />
+                          <span className="text-sm">{format.icon} {format.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="video-codec">Video Codec</Label>
+                      <Select value={multiFormatConfig.videoSettings.codec} onValueChange={(value) => 
+                        setMultiFormatConfig(prev => ({ ...prev, videoSettings: { ...prev.videoSettings, codec: value } }))
+                      }>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="libx264">H.264</SelectItem>
+                          <SelectItem value="libx265">H.265</SelectItem>
+                          <SelectItem value="libvpx-vp9">VP9</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="video-bitrate">Video Bitrate (Mbps)</Label>
+                      <Input
+                        id="video-bitrate"
+                        type="number"
+                        value={multiFormatConfig.videoSettings.bitrate}
+                        onChange={(e) => setMultiFormatConfig(prev => ({ 
+                          ...prev, 
+                          videoSettings: { ...prev.videoSettings, bitrate: parseInt(e.target.value) || 5 }
+                        }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="audio-codec">Audio Codec</Label>
+                      <Select value={multiFormatConfig.audioSettings.codec} onValueChange={(value) => 
+                        setMultiFormatConfig(prev => ({ ...prev, audioSettings: { ...prev.audioSettings, codec: value } }))
+                      }>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="aac">AAC</SelectItem>
+                          <SelectItem value="libmp3lame">MP3</SelectItem>
+                          <SelectItem value="libopus">Opus</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="audio-bitrate">Audio Bitrate (kbps)</Label>
+                      <Input
+                        id="audio-bitrate"
+                        type="number"
+                        value={multiFormatConfig.audioSettings.bitrate}
+                        onChange={(e) => setMultiFormatConfig(prev => ({ 
+                          ...prev, 
+                          audioSettings: { ...prev.audioSettings, bitrate: parseInt(e.target.value) || 128 }
+                        }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="scte35-enabled"
+                      checked={multiFormatConfig.scte35Settings.enabled}
+                      onCheckedChange={(checked) => 
+                        setMultiFormatConfig(prev => ({ 
+                          ...prev, 
+                          scte35Settings: { ...prev.scte35Settings, enabled: checked }
+                        }))
+                      }
+                    />
+                    <Label htmlFor="scte35-enabled">Enable SCTE-35 Markers</Label>
+                  </div>
+
+                  {multiFormatConfig.scte35Settings.enabled && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded">
+                      <div className="space-y-2">
+                        <Label htmlFor="scte35-pid">SCTE-35 PID</Label>
+                        <Input
+                          id="scte35-pid"
+                          type="number"
+                          value={multiFormatConfig.scte35Settings.pid}
+                          onChange={(e) => setMultiFormatConfig(prev => ({ 
+                            ...prev, 
+                            scte35Settings: { ...prev.scte35Settings, pid: parseInt(e.target.value) || 500 }
+                          }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="auto-insert">Auto Insert</Label>
+                        <Switch
+                          id="auto-insert"
+                          checked={multiFormatConfig.scte35Settings.autoInsert}
+                          onCheckedChange={(checked) => 
+                            setMultiFormatConfig(prev => ({ 
+                              ...prev, 
+                              scte35Settings: { ...prev.scte35Settings, autoInsert: checked }
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={startMultiFormatStream}
+                      disabled={!multiFormatConfig.name || !multiFormatConfig.sourceUrl}
+                      className="flex items-center space-x-2"
+                    >
+                      <Play className="w-4 h-4" />
+                      <span>Start Stream</span>
+                    </Button>
+                    <Button
+                      onClick={stopMultiFormatStream}
+                      variant="outline"
+                      className="flex items-center space-x-2"
+                    >
+                      <Square className="w-4 h-4" />
+                      <span>Stop Stream</span>
+                    </Button>
+                    <Button
+                      onClick={validateMultiFormatConfig}
+                      variant="outline"
+                      className="flex items-center space-x-2"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Validate</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stream Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Activity className="w-5 h-5" />
+                    <span>Stream Status</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Status</span>
+                      <Badge variant={multiFormatStreamStatus === 'active' ? 'default' : 'secondary'}>
+                        {multiFormatStreamStatus}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Viewers</span>
+                      <span className="text-sm">{multiFormatMetrics.viewers}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Input Bitrate</span>
+                      <span className="text-sm">{multiFormatMetrics.inputBitrate.toFixed(1)} Mbps</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Output Bitrate</span>
+                      <span className="text-sm">{multiFormatMetrics.outputBitrate.toFixed(1)} Mbps</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">FPS</span>
+                      <span className="text-sm">{multiFormatMetrics.fps.toFixed(1)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Latency</span>
+                      <span className="text-sm">{multiFormatMetrics.latency.toFixed(0)} ms</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Output URLs</Label>
+                    <div className="space-y-1">
+                      {Object.entries(multiFormatOutputUrls).map(([format, url]) => (
+                        <div key={format} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                          <span className="font-medium">{format}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => navigator.clipboard.writeText(url)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">SCTE-35 Events</Label>
+                    <div className="space-y-1">
+                      {multiFormatSCTE35Events.length > 0 ? (
+                        multiFormatSCTE35Events.slice(-3).map((event) => (
+                          <div key={event.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                            <span>{event.type}</span>
+                            <Badge variant={event.status === 'active' ? 'default' : 'secondary'}>
+                              {event.status}
+                            </Badge>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-xs text-gray-500 text-center p-2">
+                          No SCTE-35 events
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* FFmpeg Status */}
+              <FFmpegStatus />
+            </div>
+
+            {/* SCTE-35 Control */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Radio className="w-5 h-5" />
+                  <span>SCTE-35 Marker Control</span>
+                </CardTitle>
+                <CardDescription>
+                  Inject SCTE-35 markers into the multi-format stream
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="event-type">Event Type</Label>
+                    <Select value={scte35EventType} onValueChange={(value: 'CUE-OUT' | 'CUE-IN') => setScte35EventType(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="CUE-OUT">CUE-OUT (Ad Start)</SelectItem>
+                        <SelectItem value="CUE-IN">CUE-IN (Ad End)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="event-duration">Duration (seconds)</Label>
+                    <Input
+                      id="event-duration"
+                      type="number"
+                      value={scte35EventDuration}
+                      onChange={(e) => setScte35EventDuration(parseInt(e.target.value) || 30)}
+                      disabled={scte35EventType === 'CUE-IN'}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="pre-roll">Pre-roll Duration (seconds)</Label>
+                  <Input
+                    id="pre-roll"
+                    type="number"
+                    value={scte35PreRoll}
+                    onChange={(e) => setScte35PreRoll(parseInt(e.target.value) || 2)}
+                    disabled={scte35EventType === 'CUE-IN'}
+                  />
+                </div>
+
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={injectSCTE35Event}
+                    disabled={multiFormatStreamStatus !== 'active'}
+                    className="flex items-center space-x-2"
+                  >
+                    <Radio className="w-4 h-4" />
+                    <span>Inject {scte35EventType}</span>
+                  </Button>
+                  <Button
+                    onClick={getSCTE35Events}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    <span>Refresh Events</span>
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Recent Events</Label>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {multiFormatSCTE35Events.length > 0 ? (
+                      multiFormatSCTE35Events.slice(-5).map((event) => (
+                        <div key={event.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                          <div>
+                            <span className="font-medium">{event.type}</span>
+                            <span className="text-gray-500 ml-2">
+                              {new Date(event.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                          <Badge variant={event.status === 'active' ? 'default' : 'secondary'}>
+                            {event.status}
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-xs text-gray-500 text-center p-2">
+                        No SCTE-35 events
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* SCTE-35 Tab */}
