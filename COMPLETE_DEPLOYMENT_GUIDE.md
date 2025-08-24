@@ -1,193 +1,176 @@
-# SCTE-35 Streaming Project - Complete Deployment Guide
+# SCTE-35 Streaming Control Center - Complete Deployment Guide
 
-This comprehensive guide provides step-by-step instructions for deploying the SCTE-35 streaming project with all the latest features and optimizations.
+This comprehensive guide provides step-by-step instructions for deploying the SCTE-35 Streaming Control Center with proper RTMP module support.
 
-## 🚀 Quick Start
+## Prerequisites
 
-### Automated Deployment (Recommended)
+- Ubuntu 20.04/22.04 LTS
+- Root or sudo access
+- Internet connection
+- Minimum 2GB RAM, 2 CPU cores
+- 20GB disk space
+
+## Quick Deployment Options
+
+### Option 1: Automated Full Deployment
+
 ```bash
-# Clone the repository
-git clone https://github.com/shihan84/SCTE-streamcontrol.git
-cd SCTE-streamcontrol
-
-# Run the deployment script
-./deploy.sh
+# Download and run the complete deployment script
+wget https://raw.githubusercontent.com/shihan84/SCTE-streamcontrol/main/full-deploy.sh
+chmod +x full-deploy.sh
+sudo ./full-deploy.sh
 ```
 
-### Manual Quick Setup
-```bash
-# System updates and dependencies
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl wget htop vim net-tools build-essential python3-dev
+### Option 2: RTMP Module Fix Only
 
-# Install Node.js and PM2
+If you already have the project but need to fix the RTMP module issue:
+
+```bash
+# Download and run the RTMP module fix script
+wget https://raw.githubusercontent.com/shihan84/SCTE-streamcontrol/main/nginx-rtmp-module-fix.sh
+chmod +x nginx-rtmp-module-fix.sh
+sudo ./nginx-rtmp-module-fix.sh
+```
+
+### Option 3: Quick RTMP Fix (Alternative)
+
+```bash
+# Download and run the quick RTMP fix script
+wget https://raw.githubusercontent.com/shihan84/SCTE-streamcontrol/main/nginx-rtmp-quick-fix.sh
+chmod +x nginx-rtmp-quick-fix.sh
+sudo ./nginx-rtmp-quick-fix.sh
+```
+
+## Manual Deployment Steps
+
+### Step 1: System Preparation
+
+```bash
+# Update system
+sudo apt update
+sudo apt upgrade -y
+
+# Install basic tools
+sudo apt install -y git curl wget htop vim net-tools build-essential python3-dev ufw fail2ban
+```
+
+### Step 2: Install Node.js and PM2
+
+```bash
+# Install Node.js 18.x
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
+
+# Verify installation
+node --version
+npm --version
+
+# Install PM2
 sudo npm install -g pm2
+```
 
-# Install Nginx with RTMP module
-sudo apt install -y nginx
-sudo ufw allow 22,80,443,1935,1936/tcp
-sudo ufw --force enable
+### Step 3: Install Nginx with RTMP Module
 
-# Setup project
-git clone https://github.com/shihan84/SCTE-streamcontrol.git
-cd SCTE-streamcontrol
-npm install
-npm run build
+```bash
+# Remove existing Nginx
+sudo apt remove --purge -y nginx nginx-common nginx-full nginx-core || true
+sudo apt autoremove -y
+sudo apt autoclean
 
-# Configure environment
-echo "NODE_ENV=production
-PORT=3000
-RTMP_PORT=1935
-RTMP_HTTP_PORT=1936
-NEXT_PUBLIC_APP_URL=http://$(hostname -I | awk '{print $1}')" > .env
+# Install build dependencies
+sudo apt install -y build-essential libpcre3-dev libssl-dev zlib1g-dev git wget
 
-# Start application
-pm2 start npm --name "scte35-app" -- start
-pm2 save
-pm2 startup
+# Download and compile Nginx with RTMP
+cd /tmp
+wget https://nginx.org/download/nginx-1.25.3.tar.gz
+tar -xzf nginx-1.25.3.tar.gz
+cd nginx-1.25.3
+git clone https://github.com/arut/nginx-rtmp-module.git
 
 # Configure Nginx
-./fix-nginx-config.sh
+./configure \
+    --prefix=/etc/nginx \
+    --sbin-path=/usr/sbin/nginx \
+    --modules-path=/usr/lib/nginx/modules \
+    --conf-path=/etc/nginx/nginx.conf \
+    --error-log-path=/var/log/nginx/error.log \
+    --http-log-path=/var/log/nginx/access.log \
+    --pid-path=/var/run/nginx.pid \
+    --lock-path=/var/run/nginx.lock \
+    --user=www-data \
+    --group=www-data \
+    --with-http_ssl_module \
+    --with-http_v2_module \
+    --with-http_realip_module \
+    --with-http_addition_module \
+    --with-http_sub_module \
+    --with-http_dav_module \
+    --with-http_flv_module \
+    --with-http_mp4_module \
+    --with-http_gunzip_module \
+    --with-http_gzip_static_module \
+    --with-http_random_index_module \
+    --with-http_secure_link_module \
+    --with-http_stub_status_module \
+    --with-http_auth_request_module \
+    --with-threads \
+    --with-stream \
+    --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
+    --add-dynamic-module=./nginx-rtmp-module
+
+# Compile and install
+make -j$(nproc)
+sudo make install
+
+# Create nginx user
+sudo id -u www-data &>/dev/null || sudo useradd -r -s /bin/false www-data
+
+# Create systemd service
+sudo tee /etc/systemd/system/nginx.service > /dev/null << 'EOF'
+[Unit]
+Description=A high performance web server and a reverse proxy server
+Documentation=man:nginx(8)
+After=network.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/nginx.pid
+ExecStartPre=/usr/sbin/nginx -t
+ExecStart=/usr/sbin/nginx
+ExecReload=/usr/sbin/nginx -s reload
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable nginx
+sudo systemctl daemon-reload
+sudo systemctl enable nginx
+
+# Clean up
+cd /
+rm -rf /tmp/nginx-1.25.3
 ```
 
-## 📋 Table of Contents
+### Step 4: Configure Nginx
 
-1. [System Requirements](#system-requirements)
-2. [Environment Setup](#environment-setup)
-3. [Project Installation](#project-installation)
-4. [Nginx Configuration](#nginx-configuration)
-5. [Application Deployment](#application-deployment)
-6. [SCTE-35 Configuration](#scte-35-configuration)
-7. [Testing and Verification](#testing-and-verification)
-8. [Production Optimization](#production-optimization)
-9. [Maintenance and Updates](#maintenance-and-updates)
-10. [Troubleshooting](#troubleshooting)
-
-## 🖥️ System Requirements
-
-### Minimum Requirements
-- **OS**: Ubuntu 20.04+ or Debian 10+
-- **CPU**: 2 cores (4 cores recommended)
-- **RAM**: 4GB (8GB recommended)
-- **Storage**: 25GB SSD (50GB recommended)
-- **Network**: 10 Mbps upload bandwidth
-
-### Recommended Requirements
-- **OS**: Ubuntu 22.04 LTS
-- **CPU**: 4+ cores
-- **RAM**: 8GB+ (16GB for high traffic)
-- **Storage**: 50GB+ SSD
-- **Network**: 100 Mbps+ upload bandwidth
-
-## 🌍 Environment Setup
-
-### VirtualBox Configuration (Development)
 ```bash
-# VM Settings
-- Name: SCTE35-Server
-- Type: Linux (64-bit)
-- Memory: 4096 MB
-- CPU: 2 cores (enable PAE/NX and Nested VT-x)
-- Network: Bridged Adapter
-- Storage: 25GB+ dynamically allocated VDI
-```
-
-### Cloud Server Setup (Production)
-```bash
-# Initial server setup
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl wget htop vim net-tools build-essential python3-dev
-sudo apt install -y ufw fail2ban
-sudo hostnamectl set-hostname scte35-server
-
-# Configure firewall
-sudo ufw allow 22/tcp    # SSH
-sudo ufw allow 80/tcp    # HTTP
-sudo ufw allow 443/tcp   # HTTPS
-sudo ufw allow 1935/tcp  # RTMP
-sudo ufw allow 1936/tcp  # RTMP stats
-sudo ufw --force enable
-```
-
-## 📦 Project Installation
-
-### Clone and Setup Repository
-```bash
-# Navigate to home directory
-cd ~
-
-# Clone the repository
-git clone https://github.com/shihan84/SCTE-streamcontrol.git
-cd SCTE-streamcontrol
-
-# Install dependencies
-npm install
-
-# Build the application
-npm run build
-
-# Create environment file
-cp .env.example .env
-nano .env
-```
-
-### Environment Configuration
-```bash
-# Production environment settings
-NODE_ENV=production
-PORT=3000
-
-# RTMP Server settings
-RTMP_PORT=1935
-RTMP_HTTP_PORT=1936
-
-# Application URL
-NEXT_PUBLIC_APP_URL=http://your-server-ip
-
-# Database settings (if using Prisma)
-DATABASE_URL="file:./dev.db"
-
-# Optional: SSL and domain settings
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-```
-
-## ⚙️ Nginx Configuration
-
-### Automated Configuration Setup
-```bash
-# Run the comprehensive Nginx configuration script
-./fix-nginx-config.sh
-
-# This script automatically:
-# - Creates required directories (/var/www/rtmp/hls, /var/www/rtmp/dash)
-# - Sets proper permissions
-# - Configures main nginx.conf with RTMP support
-# - Sets up proxy for Next.js application
-# - Configures HLS/DASH streaming
-# - Sets up RTMP statistics
-# - Adds security headers and CORS support
-# - Tests and reloads Nginx configuration
-```
-
-### Manual Configuration (Alternative)
-```bash
-# Create required directories
-sudo mkdir -p /var/www/rtmp/hls /var/www/rtmp/dash
+# Create directories
+sudo mkdir -p /etc/nginx/conf.d
+sudo mkdir -p /var/log/nginx
+sudo mkdir -p /var/www/rtmp/hls
+sudo mkdir -p /var/www/rtmp/dash
 sudo chown -R www-data:www-data /var/www/rtmp
 sudo chmod -R 755 /var/www/rtmp
 
-# Create main nginx configuration
-sudo nano /etc/nginx/nginx.conf
-```
-
-**Complete nginx.conf configuration:**
-```nginx
+# Create nginx.conf
+sudo tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
 user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
-include /etc/nginx/modules-enabled/*.conf;
 
 events {
     worker_connections 768;
@@ -272,7 +255,7 @@ http {
     # Main server configuration
     server {
         listen 80;
-        server_name your-server-ip localhost;
+        server_name localhost;
         
         # Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;
@@ -303,11 +286,6 @@ http {
             root /var/www/rtmp;
             add_header Cache-Control no-cache;
             add_header Access-Control-Allow-Origin *;
-            
-            # CORS headers
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
         }
         
         # DASH streaming
@@ -319,11 +297,6 @@ http {
             root /var/www/rtmp;
             add_header Cache-Control no-cache;
             add_header Access-Control-Allow-Origin *;
-            
-            # CORS headers
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
         }
         
         # RTMP statistics
@@ -344,23 +317,53 @@ http {
         }
     }
 }
-```
+EOF
 
-### Test and Reload Nginx
-```bash
-# Test nginx configuration
+# Test configuration
 sudo nginx -t
-
-# If test passes, reload nginx
-sudo systemctl reload nginx
-
-# Check nginx status
-sudo systemctl status nginx
+sudo systemctl start nginx
 ```
 
-## 🚀 Application Deployment
+### Step 5: Configure Firewall
 
-### PM2 Configuration
+```bash
+# Configure UFW firewall
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 80/tcp    # HTTP
+sudo ufw allow 443/tcp   # HTTPS
+sudo ufw allow 1935/tcp  # RTMP
+sudo ufw allow 1936/tcp  # RTMP stats
+sudo ufw --force enable
+```
+
+### Step 6: Clone and Setup Project
+
+```bash
+# Clone the project
+cd ~
+git clone https://github.com/shihan84/SCTE-streamcontrol.git
+cd SCTE-streamcontrol
+
+# Install dependencies
+npm install
+
+# Build application
+npm run build
+
+# Create environment configuration
+SERVER_IP=$(hostname -I | awk '{print $1}')
+cat > .env << EOF
+NODE_ENV=production
+PORT=3000
+RTMP_PORT=1935
+RTMP_HTTP_PORT=1936
+NEXT_PUBLIC_APP_URL=http://$SERVER_IP
+DATABASE_URL="file:./dev.db"
+EOF
+```
+
+### Step 7: Deploy with PM2
+
 ```bash
 # Create PM2 ecosystem configuration
 cat > ecosystem.config.js << 'EOF'
@@ -392,7 +395,7 @@ EOF
 sudo mkdir -p /var/log/pm2
 sudo chown -R ubuntu:ubuntu /var/log/pm2
 
-# Start application with PM2
+# Start application
 pm2 start ecosystem.config.js
 
 # Save PM2 configuration
@@ -402,134 +405,15 @@ pm2 save
 pm2 startup
 ```
 
-### Application Management Commands
+### Step 8: Configure Security
+
 ```bash
-# List all processes
-pm2 list
-
-# Monitor application
-pm2 monit
-
-# View logs
-pm2 logs
-
-# Restart application
-pm2 restart scte35-app
-
-# Stop application
-pm2 stop scte35-app
-
-# Update application
-git pull
-npm install
-npm run build
-pm2 reload scte35-app
-```
-
-## 🎛️ SCTE-35 Configuration
-
-### SCTE-35 Webhook Setup
-The application includes SCTE-35 webhook endpoints that are automatically configured in the Nginx setup:
-
-- **`/api/scte35/on-publish`** - Triggered when a stream starts
-- **`/api/scte35/on-publish-done`** - Triggered when a stream ends
-- **`/api/scte35/on-play`** - Triggered when a client starts playing
-- **`/api/scte35/on-play-done`** - Triggered when a client stops playing
-
-### SCTE-35 Template Management
-Use the web interface to:
-1. Create SCTE-35 insertion templates
-2. Configure timing and duration
-3. Set up ad break scheduling
-4. Monitor SCTE-35 events in real-time
-
-### Stream Configuration
-```bash
-# RTMP stream URL for publishing
-rtmp://your-server-ip:1935/live/stream-key
-
-# HLS playback URL
-http://your-server-ip/hls/stream-key.m3u8
-
-# DASH playback URL
-http://your-server-ip/dash/stream-key.mpd
-
-# RTMP statistics
-http://your-server-ip/stat
-```
-
-## 🧪 Testing and Verification
-
-### Health Checks
-```bash
-# Check application health
-curl http://localhost:3000/health
-
-# Check Nginx health
-curl http://your-server-ip/health
-
-# Check RTMP statistics
-curl http://your-server-ip/stat
-```
-
-### Test RTMP Streaming
-```bash
-# Install FFmpeg for testing
-sudo apt install -y ffmpeg
-
-# Push a test stream (create a test video first)
-ffmpeg -f lavfi -i testsrc2=duration=30:size=640x480:rate=30 -f lavfi -i sine=frequency=1000:duration=30 -c:v libx264 -c:a aac -f flv rtmp://localhost:1935/live/test
-
-# Test with a video file
-ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://localhost:1935/live/test
-```
-
-### Verify Streaming Outputs
-```bash
-# Test HLS stream
-curl -I http://your-server-ip/hls/test.m3u8
-
-# Test DASH stream
-curl -I http://your-server-ip/dash/test.mpd
-
-# Test RTMP statistics
-curl -I http://your-server-ip/stat
-```
-
-### Web Interface Testing
-Open your browser and navigate to:
-- **Main Application**: `http://your-server-ip/`
-- **RTMP Statistics**: `http://your-server-ip/stat`
-- **Health Check**: `http://your-server-ip/health`
-
-## ⚡ Production Optimization
-
-### SSL/TLS Configuration
-```bash
-# Install Certbot
-sudo apt install -y certbot python3-certbot-nginx
-
-# Obtain SSL certificate (replace with your domain)
-sudo certbot --nginx -d your-domain.com
-
-# Auto-renew SSL certificates
-sudo crontab -e
-# Add: 0 12 * * * /usr/bin/certbot renew --quiet
-```
-
-### System Security
-```bash
-# Install and configure fail2ban
-sudo apt install -y fail2ban
+# Configure fail2ban
 sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 
-# Configure fail2ban
-sudo nano /etc/fail2ban/jail.local
-```
-
-**fail2ban configuration:**
-```ini
+# Create fail2ban configuration
+sudo tee /etc/fail2ban/jail.local > /dev/null << 'EOF'
 [sshd]
 enabled = true
 port = 22
@@ -543,81 +427,158 @@ enabled = true
 filter = nginx-http-auth
 port = http,https
 logpath = /var/log/nginx/error.log
+EOF
+
+sudo systemctl restart fail2ban
 ```
 
-### Performance Optimization
+## Testing and Verification
+
+### 1. Check Nginx Status
+
 ```bash
-# System optimization
-sudo nano /etc/sysctl.conf
+sudo systemctl status nginx
+sudo nginx -t
 ```
 
-**Add these lines to sysctl.conf:**
-```ini
-# Increase file descriptor limit
-fs.file-max = 100000
+### 2. Test RTMP Module
 
-# Network optimization
-net.core.rmem_max = 16777216
-net.core.wmem_max = 16777216
-net.ipv4.tcp_rmem = 4096 87380 16777216
-net.ipv4.tcp_wmem = 4096 65536 16777216
-net.ipv4.tcp_congestion_control = cubic
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_fin_timeout = 15
-net.ipv4.tcp_keepalive_time = 300
-net.ipv4.ip_local_port_range = 10000 65535
-```
-
-Apply changes:
 ```bash
-sudo sysctl -p
+# Test RTMP streaming
+ffmpeg -re -i /dev/zero -c:v libx264 -t 10 -f flv rtmp://localhost:1935/live/test
+
+# View RTMP statistics
+curl http://localhost/stat
 ```
 
-### Nginx Performance Tuning
+### 3. Check Application Status
+
 ```bash
-# Edit nginx configuration for performance
-sudo nano /etc/nginx/nginx.conf
+pm2 status
+pm2 logs scte35-app
 ```
 
-**Add to http block:**
-```nginx
-# Performance optimizations
-worker_processes auto;
-worker_rlimit_nofile 65535;
-multi_accept on;
+### 4. Test Web Interface
 
-# Connection optimization
-keepalive_timeout 30;
-keepalive_requests 1000;
-reset_timedout_connection on;
-
-# Buffer optimization
-client_body_buffer_size 128k;
-client_max_body_size 100m;
-client_header_buffer_size 1k;
-large_client_header_buffers 4 4k;
-output_buffers 1 32k;
-postpone_output 1460;
+Open your browser and navigate to:
+```
+http://your-server-ip/
 ```
 
-## 🔧 Maintenance and Updates
+## Troubleshooting
 
-### Repository Updates
+### Common Issues
+
+#### 1. RTMP Module Not Found
+
+**Error**: `nginx: [emerg] unknown directive "rtmp"`
+
+**Solution**: Use the RTMP module fix script:
 ```bash
-# Use the automated update scripts
-./update-from-github.sh    # Interactive update
-./git-reset-pull.sh        # Quick reset-based update
-
-# Manual update process
-git pull origin master
-npm install
-npm run build
-pm2 reload scte35-app
+sudo ./nginx-rtmp-module-fix.sh
 ```
 
-### Backup Procedures
+#### 2. Port Already in Use
+
+**Error**: `Address already in use`
+
+**Solution**:
 ```bash
-# Create backup script
+sudo netstat -tulpn | grep :1935
+sudo kill -9 <PID>
+```
+
+#### 3. Permission Issues
+
+**Error**: `Permission denied`
+
+**Solution**:
+```bash
+sudo chown -R www-data:www-data /var/www/rtmp
+sudo chown -R www-data:www-data /var/log/nginx
+```
+
+#### 4. Configuration Test Fails
+
+**Error**: `nginx: configuration test failed`
+
+**Solution**:
+```bash
+sudo nginx -t
+sudo tail -f /var/log/nginx/error.log
+```
+
+### Log Files
+
+- Nginx Error Log: `/var/log/nginx/error.log`
+- Nginx Access Log: `/var/log/nginx/access.log`
+- RTMP Access Log: `/var/log/nginx/rtmp_access.log`
+- PM2 Logs: `/var/log/pm2/scte35-*.log`
+- Systemd Journal: `journalctl -u nginx -f`
+
+## Advanced Configuration
+
+### SSL/TLS Configuration
+
+```bash
+# Install Certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Get SSL certificate
+sudo certbot --nginx -d your-domain.com
+
+# Auto-renewal
+sudo crontab -e
+# Add: 0 12 * * * /usr/bin/certbot renew --quiet
+```
+
+### Load Balancing
+
+```bash
+# Update nginx.conf for multiple instances
+upstream scte35_app {
+    server localhost:3000;
+    server localhost:3001;
+    server localhost:3002;
+}
+
+# Update proxy_pass in server configuration
+proxy_pass http://scte35_app;
+```
+
+### Monitoring Setup
+
+```bash
+# Install monitoring tools
+sudo apt install htop iotop nethogs
+
+# Create monitoring script
+cat > monitor.sh << 'EOF'
+#!/bin/bash
+echo "=== System Resources ==="
+htop -n 1 | head -20
+echo ""
+echo "=== Nginx Status ==="
+sudo systemctl status nginx --no-pager
+echo ""
+echo "=== PM2 Status ==="
+pm2 status
+echo ""
+echo "=== Disk Usage ==="
+df -h
+echo ""
+echo "=== Memory Usage ==="
+free -h
+EOF
+
+chmod +x monitor.sh
+```
+
+## Backup and Recovery
+
+### Backup Script
+
+```bash
 cat > backup.sh << 'EOF'
 #!/bin/bash
 
@@ -645,186 +606,78 @@ EOF
 chmod +x backup.sh
 
 # Setup automatic backups
-crontab -e
-# Add: 0 2 * * * /home/ubuntu/SCTE-streamcontrol/backup.sh
+(crontab -l 2>/dev/null; echo "0 2 * * * /home/ubuntu/SCTE-streamcontrol/backup.sh") | crontab -
 ```
 
-### System Monitoring
+### Recovery Process
+
 ```bash
-# Monitor system resources
-htop
-df -h
-free -h
+# Restore from backup
+cd /home/ubuntu
+tar -xzf backups/project_YYYYMMDD_HHMMSS.tar.gz
 
-# Monitor application logs
-pm2 logs
+# Restore nginx configuration
+sudo cp -r backups/nginx_YYYYMMDD_HHMMSS/* /etc/nginx/
 
-# Monitor nginx logs
-sudo tail -f /var/log/nginx/access.log
-sudo tail -f /var/log/nginx/error.log
-
-# Monitor RTMP logs
-sudo tail -f /var/log/nginx/rtmp_access.log
+# Restore PM2 configuration
+pm2 resurrect backups/pm2_YYYYMMDD_HHMMSS.dump
 ```
 
-### Log Rotation
+## Performance Optimization
+
+### Nginx Optimization
+
 ```bash
-# Configure logrotate for application logs
-sudo nano /etc/logrotate.d/scte35-app
-```
+# Update nginx.conf worker settings
+worker_processes auto;
+worker_rlimit_nofile 65535;
 
-**logrotate configuration:**
-```
-/var/log/pm2/*.log {
-    daily
-    missingok
-    rotate 7
-    compress
-    delaycompress
-    notifempty
-    create 644 ubuntu ubuntu
-    postrotate
-        pm2 reload scte35-app
-    endscript
+events {
+    worker_connections 4096;
+    multi_accept on;
+    use epoll;
 }
 ```
 
-## 🚨 Troubleshooting
+### System Optimization
 
-### Common Issues and Solutions
-
-#### Application Won't Start
 ```bash
-# Check PM2 logs
-pm2 logs
+# Update system limits
+sudo tee /etc/security/limits.conf > /dev/null << 'EOF'
+* soft nofile 65536
+* hard nofile 65536
+* soft nproc 32768
+* hard nproc 32768
+EOF
 
-# Check if port 3000 is available
-sudo netstat -tulpn | grep :3000
+# Update sysctl settings
+sudo tee /etc/sysctl.conf > /dev/null << 'EOF'
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+net.ipv4.tcp_congestion_control = cubic
+EOF
 
-# Check Node.js version
-node --version
-npm --version
-
-# Restart application
-pm2 restart scte35-app
+sudo sysctl -p
 ```
 
-#### RTMP Streaming Issues
-```bash
-# Check nginx configuration
-sudo nginx -t
+## Support and Maintenance
 
-# Check nginx error logs
-sudo tail -f /var/log/nginx/error.log
+### Regular Maintenance Tasks
 
-# Check if RTMP port is listening
-sudo netstat -tulpn | grep :1935
+1. **Daily**: Check logs, monitor system resources
+2. **Weekly**: Update packages, check security patches
+3. **Monthly**: Review performance, clean up logs
+4. **Quarterly**: Full system audit, backup verification
 
-# Test RTMP connection
-telnet localhost 1935
-```
+### Contact Support
 
-#### Nginx Configuration Issues
-```bash
-# Test nginx configuration
-sudo nginx -t
-
-# Check nginx status
-sudo systemctl status nginx
-
-# Reload nginx
-sudo systemctl reload nginx
-
-# Check nginx logs
-sudo journalctl -u nginx -f
-```
-
-#### Performance Issues
-```bash
-# Check system resources
-free -h
-cat /proc/loadavg
-df -h
-
-# Check PM2 memory usage
-pm2 info scte35-app
-
-# Monitor processes
-pm2 monit
-htop
-```
-
-#### Permission Issues
-```bash
-# Fix file permissions
-sudo chown -R ubuntu:ubuntu /home/ubuntu/SCTE-streamcontrol
-sudo chmod -R 755 /home/ubuntu/SCTE-streamcontrol
-
-# Fix RTMP directory permissions
-sudo chown -R www-data:www-data /var/www/rtmp
-sudo chmod -R 755 /var/www/rtmp
-```
-
-### Log File Locations
-- **Application logs**: `/var/log/pm2/`
-- **Nginx logs**: `/var/log/nginx/`
-- **RTMP logs**: `/var/log/nginx/rtmp_access.log`
-- **System logs**: `/var/log/syslog`
-- **Authentication logs**: `/var/log/auth.log`
-
-### Useful Commands
-```bash
-# System information
-uname -a
-lscpu
-free -h
-df -h
-
-# Network information
-ip addr show
-netstat -tulpn
-ss -tulpn
-
-# Process management
-ps aux | grep node
-pm2 list
-pm2 monit
-
-# Service management
-sudo systemctl status nginx
-sudo systemctl restart nginx
-sudo systemctl status pm2-init
-
-# File system
-find /home/ubuntu/SCTE-streamcontrol -name "*.log"
-du -sh /home/ubuntu/SCTE-streamcontrol
-```
-
-## 📞 Support and Resources
-
-### Getting Help
-1. **Check logs**: Use `pm2 logs` and `sudo tail -f /var/log/nginx/error.log`
-2. **Verify services**: Check `pm2 status` and `sudo systemctl status nginx`
-3. **Test connectivity**: Use `curl http://localhost:3000/health`
-4. **Review documentation**: Check this guide and `QUICK_START.md`
-
-### Community Resources
-- **GitHub Issues**: Report bugs and request features
-- **Documentation**: All guides and scripts are in the repository
-- **Update Scripts**: Use `./update-from-github.sh` for latest fixes
-
-### Emergency Recovery
-```bash
-# Restore from backup
-cd /home/ubuntu/backups
-tar -xzf project_latest.tar.gz -C /home/ubuntu/
-sudo cp -r nginx_latest/* /etc/nginx/
-
-# Restart services
-pm2 restart scte35-app
-sudo systemctl restart nginx
-```
+For technical support and assistance:
+- GitHub Issues: https://github.com/shihan84/SCTE-streamcontrol/issues
+- Documentation: https://github.com/shihan84/SCTE-streamcontrol/wiki
+- Email Support: support@morusbroadcasting.com
 
 ---
 
-This guide provides a complete deployment solution for your SCTE-35 streaming project. For additional support or to contribute improvements, please visit the GitHub repository.
+© 2024 Morus Broadcasting Pvt Ltd. All rights reserved.

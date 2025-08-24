@@ -125,15 +125,87 @@ print_success "Node.js and PM2 installation completed."
 echo ""
 print_step "Step 3: Installing and Configuring Nginx"
 
-print_info "Installing Nginx..."
+print_info "Installing Nginx with RTMP module..."
 # Remove any existing Nginx installation first
 sudo apt remove --purge -y nginx nginx-common nginx-full nginx-core || true
 sudo apt autoremove -y
 sudo apt autoclean
 
-# Install Nginx properly
-sudo apt update
-sudo apt install -y nginx
+# Install build dependencies for RTMP module
+sudo apt install -y build-essential libpcre3-dev libssl-dev zlib1g-dev git wget
+
+# Download and compile Nginx with RTMP module
+cd /tmp
+wget https://nginx.org/download/nginx-1.25.3.tar.gz
+tar -xzf nginx-1.25.3.tar.gz
+cd nginx-1.25.3
+git clone https://github.com/arut/nginx-rtmp-module.git
+
+# Configure and compile Nginx with RTMP module
+./configure \
+    --prefix=/etc/nginx \
+    --sbin-path=/usr/sbin/nginx \
+    --modules-path=/usr/lib/nginx/modules \
+    --conf-path=/etc/nginx/nginx.conf \
+    --error-log-path=/var/log/nginx/error.log \
+    --http-log-path=/var/log/nginx/access.log \
+    --pid-path=/var/run/nginx.pid \
+    --lock-path=/var/run/nginx.lock \
+    --user=www-data \
+    --group=www-data \
+    --with-http_ssl_module \
+    --with-http_v2_module \
+    --with-http_realip_module \
+    --with-http_addition_module \
+    --with-http_sub_module \
+    --with-http_dav_module \
+    --with-http_flv_module \
+    --with-http_mp4_module \
+    --with-http_gunzip_module \
+    --with-http_gzip_static_module \
+    --with-http_random_index_module \
+    --with-http_secure_link_module \
+    --with-http_stub_status_module \
+    --with-http_auth_request_module \
+    --with-threads \
+    --with-stream \
+    --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
+    --add-dynamic-module=./nginx-rtmp-module
+
+make -j$(nproc)
+sudo make install
+
+# Create nginx user if not exists
+sudo id -u www-data &>/dev/null || sudo useradd -r -s /bin/false www-data
+
+# Create systemd service
+sudo tee /etc/systemd/system/nginx.service > /dev/null << 'EOF'
+[Unit]
+Description=A high performance web server and a reverse proxy server
+Documentation=man:nginx(8)
+After=network.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/nginx.pid
+ExecStartPre=/usr/sbin/nginx -t
+ExecStart=/usr/sbin/nginx
+ExecReload=/usr/sbin/nginx -s reload
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start nginx
+sudo systemctl daemon-reload
+sudo systemctl enable nginx
+
+# Clean up
+cd /
+rm -rf /tmp/nginx-1.25.3
 
 # Verify Nginx installation
 if ! command_exists nginx; then
