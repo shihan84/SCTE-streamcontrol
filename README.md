@@ -262,19 +262,14 @@ The deployment script sets up PM2 with:
 - **Systemd integration** for startup on boot
 - **Memory management** with restart limits
 
-## 📚 **Documentation**
-
-### **Deployment Guides**
-- [Complete Deployment Guide](COMPLETE_DEPLOYMENT_GUIDE.md) - Comprehensive deployment instructions
-- [RTMP Module Fix Guide](NGINX_RTMP_MODULE_FIX_GUIDE.md) - RTMP module installation and troubleshooting
-
-### **Management & Maintenance**
-- [Update Scripts](update-from-github.sh) - Automated repository updates
-- [Database Management](scripts/backup-database.sh) - Database backup and restoration
-- [Deployment Verification](test-deployment-verification.sh) - Comprehensive system testing
+### **Documentation**
+- **Comprehensive documentation** included in this README
+- **Automated deployment** with `./full-deploy.sh`
+- **Testing and verification** with `./test-deployment-verification.sh`
+- **Repository updates** with `./update-from-github.sh`
 
 ### **Troubleshooting**
-- **Comprehensive troubleshooting** in all deployment guides
+- **Comprehensive troubleshooting** included in this README
 - **Health check endpoints** for system monitoring
 - **Log management** with centralized logging
 - **Performance monitoring** with real-time metrics
@@ -436,7 +431,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 **Support**
 
 ### **Getting Help**
-- **Documentation**: Check our comprehensive guides below
+- **Documentation**: Check this comprehensive README
 - **Issues**: Report bugs and request features on [GitHub Issues](https://github.com/shihan84/SCTE-streamcontrol/issues)
 - **Discussions**: Join community discussions on [GitHub Discussions](https://github.com/shihan84/SCTE-streamcontrol/discussions)
 
@@ -457,8 +452,8 @@ htop && df -h && free -h
 
 ### **Community Resources**
 - **GitHub**: Repository and issue tracking
-- **Documentation**: Comprehensive guides and tutorials
-- **Scripts**: Automated deployment and management tools
+- **Comprehensive README**: Complete documentation and tutorials
+- **Automated Scripts**: Deployment, testing, and management tools
 
 ---
 
