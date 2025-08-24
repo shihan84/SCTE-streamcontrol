@@ -51,13 +51,34 @@ This application provides a complete control center for live TV streaming with S
 
 ## 🚀 **Quick Start - 5 Minute Deployment**
 
-### **Option 1: Automated Deployment (Recommended)**
+### **Option 1: Full Deployment with FFmpeg (Recommended)**
 ```bash
 # Clone the repository
 git clone https://github.com/shihan84/SCTE-streamcontrol.git
 cd SCTE-streamcontrol
 
-# Run the full deployment script (includes SuperKabuki FFmpeg)
+# Run the complete deployment script with SuperKabuki FFmpeg
+./deploy-full-with-ffmpeg.sh
+```
+
+**This includes everything:**
+- ✅ System updates and dependencies
+- ✅ SuperKabuki FFmpeg installation with SCTE-35 patch
+- ✅ Node.js, npm, and PM2 installation
+- ✅ Nginx with RTMP module configuration
+- ✅ Firewall and security setup
+- ✅ Application deployment and startup
+- ✅ Health checks and verification
+- ✅ Monitoring and backup scripts
+- ✅ System optimization
+
+### **Option 2: Automated Deployment (Standard)**
+```bash
+# Clone the repository
+git clone https://github.com/shihan84/SCTE-streamcontrol.git
+cd SCTE-streamcontrol
+
+# Run the standard deployment script
 ./full-deploy.sh
 ```
 
@@ -175,7 +196,10 @@ ffmpeg -i input.ts -map 0:d -f data -y output.bin
 ### **Testing and Verification**
 ```bash
 # Run comprehensive deployment verification
-sudo ./test-deployment-verification.sh
+./verify-deployment.sh
+
+# Test SuperKabuki FFmpeg installation
+test-scte35.sh
 
 # Test streaming with FFmpeg
 ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://localhost:1935/live/test
@@ -353,11 +377,14 @@ The deployment script sets up PM2 with:
 
 ### **Documentation**
 - **Comprehensive documentation** included in this README
-- **Automated deployment** with `./full-deploy.sh`
-- **Testing and verification** with `./test-deployment-verification.sh`
-- **Repository updates** with `./update-from-github.sh`
-- **Complete uninstallation** with `./uninstall.sh`
-- **Partial uninstallation** with `./uninstall-partial.sh`
+- **Full deployment guide**: `docs/FULL_DEPLOYMENT_WITH_FFMPEG.md`
+- **SuperKabuki integration**: `docs/SUPERKABUKI_INTEGRATION.md`
+- **Automated deployment**: `./full-deploy.sh`
+- **Complete deployment with FFmpeg**: `./deploy-full-with-ffmpeg.sh`
+- **Testing and verification**: `./verify-deployment.sh`
+- **Repository updates**: `./update-from-github.sh`
+- **Complete uninstallation**: `./uninstall.sh`
+- **Partial uninstallation**: `./uninstall-partial.sh`
 
 ### **Troubleshooting**
 - **Comprehensive troubleshooting** included in this README
