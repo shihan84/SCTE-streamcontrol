@@ -374,6 +374,23 @@ export class MultiFormatStreamer extends EventEmitter {
       args.push('-protocol_whitelist', 'file,udp,rtp,srt');
     }
 
+    // SuperKabuki SCTE-35 enhancements
+    if (config.scte35Settings.enabled) {
+      // Preserve timestamps (critical for SCTE-35)
+      args.push('-copyts');
+      
+      // MPEG-TS configuration for SCTE-35
+      args.push('-mpegts_pmt_start_pid', '16');
+      args.push('-mpegts_service_id', '1');
+      args.push('-mpegts_pmt_pid', '16');
+      args.push('-mpegts_start_pid', '32');
+      args.push('-scte35_pid', config.scte35Settings.pid.toString());
+      
+      // SuperKabuki specific enhancements
+      args.push('-muxpreload', '0');
+      args.push('-muxdelay', '0');
+    }
+
     // Video settings
     args.push('-c:v', config.videoSettings.codec);
     args.push('-b:v', `${config.videoSettings.bitrate}M`);
@@ -389,15 +406,6 @@ export class MultiFormatStreamer extends EventEmitter {
     args.push('-b:a', `${config.audioSettings.bitrate}k`);
     args.push('-ar', config.audioSettings.sampleRate.toString());
     args.push('-ac', config.audioSettings.channels.toString());
-
-    // SCTE-35 settings
-    if (config.scte35Settings.enabled) {
-      args.push('-mpegts_pmt_start_pid', '16');
-      args.push('-mpegts_service_id', '1');
-      args.push('-mpegts_pmt_pid', '16');
-      args.push('-mpegts_start_pid', '32');
-      args.push('-scte35_pid', config.scte35Settings.pid.toString());
-    }
 
     // Format-specific output options
     switch (outputFormat.format) {
@@ -442,9 +450,14 @@ export class MultiFormatStreamer extends EventEmitter {
         break;
     }
 
-    // SCTE-35 metadata
+    // SCTE-35 metadata with SuperKabuki enhancements
     if (config.scte35Settings.enabled) {
       args.push('-metadata', 'scte35=true');
+      args.push('-metadata', 'scte35_passthrough=true');
+      args.push('-metadata', 'scte35_descriptor=true');
+      
+      // Copy SCTE-35 data streams if present
+      args.push('-c:d', 'copy');
     }
 
     // Output URL

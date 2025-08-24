@@ -1,0 +1,117 @@
+{
+  "name": "SuperKabuki FFmpeg Configuration",
+  "version": "1.0.0",
+  "description": "Enhanced FFmpeg configuration with SuperKabuki SCTE-35 patch support",
+  "ffmpeg": {
+    "path": "/usr/local/bin/ffmpeg",
+    "version": "SuperKabuki-patch",
+    "features": {
+      "scte35_passthrough": true,
+      "scte35_descriptor": true,
+      "copyts": true,
+      "muxpreload": 0,
+      "muxdelay": 0
+    }
+  },
+  "scte35": {
+    "pid": 500,
+    "null_pid": 8191,
+    "auto_insert": true,
+    "validation": {
+      "enabled": true,
+      "strict_mode": false
+    }
+  },
+  "mpegts": {
+    "pmt_start_pid": 16,
+    "service_id": 1,
+    "pmt_pid": 16,
+    "start_pid": 32
+  },
+  "transcoding": {
+    "video": {
+      "codec": "libx264",
+      "bitrate": "5M",
+      "resolution": "1920x1080",
+      "framerate": "30",
+      "gop": 12,
+      "b_frames": 5,
+      "profile": "high",
+      "pixel_format": "yuv420p"
+    },
+    "audio": {
+      "codec": "aac",
+      "bitrate": "128k",
+      "sample_rate": 48000,
+      "channels": 2
+    }
+  },
+  "output_formats": {
+    "hls": {
+      "enabled": true,
+      "segment_duration": 2,
+      "playlist_length": 6,
+      "flags": ["delete_segments", "independent_segments"],
+      "segment_type": "mpegts"
+    },
+    "dash": {
+      "enabled": true,
+      "segment_duration": 2,
+      "window_size": 6,
+      "use_template": true,
+      "use_timeline": true
+    },
+    "srt": {
+      "enabled": true,
+      "latency": 120,
+      "overhead_bandwidth": 25
+    },
+    "rtmp": {
+      "enabled": true,
+      "chunk_size": 4096
+    }
+  },
+  "presets": {
+    "scte35_preserved_transcode": {
+      "name": "SCTE-35 Preserved Transcode",
+      "args": [
+        "-copyts",
+        "-c:d", "copy",
+        "-muxpreload", "0",
+        "-muxdelay", "0",
+        "-metadata", "scte35=true"
+      ]
+    },
+    "scte35_stream_copy": {
+      "name": "SCTE-35 Stream Copy",
+      "args": [
+        "-copyts",
+        "-c", "copy",
+        "-muxpreload", "0",
+        "-muxdelay", "0",
+        "-metadata", "scte35=true"
+      ]
+    },
+    "scte35_extraction": {
+      "name": "SCTE-35 Data Extraction",
+      "args": [
+        "-map", "0:d",
+        "-f", "data"
+      ]
+    }
+  },
+  "validation": {
+    "scte35_packet_validation": true,
+    "timestamp_preservation": true,
+    "stream_integrity": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics": [
+      "scte35_events_injected",
+      "scte35_events_preserved",
+      "timestamp_accuracy",
+      "stream_health"
+    ]
+  }
+}

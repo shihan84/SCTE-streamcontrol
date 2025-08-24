@@ -1,20 +1,27 @@
 # 📺 SCTE-35 Streaming Control Center
 
-*A comprehensive web-based solution for managing live TV streams with SCTE-35 ad insertion, featuring complete deployment automation and professional broadcast capabilities.*
+*A comprehensive web-based solution for managing live TV streams with SCTE-35 ad insertion, featuring complete deployment automation and professional broadcast capabilities with enhanced SuperKabuki FFmpeg integration.*
 
 **© 2024 Morus Broadcasting Pvt Ltd. All rights reserved.**
 
 ## 🎯 Overview
 
-This application provides a complete control center for live TV streaming with SCTE-35 support, designed for professional broadcasters. Built with Next.js 15 and modern web technologies, it offers real-time monitoring, event management, and configuration tools with **one-click deployment** and **complete automation**.
+This application provides a complete control center for live TV streaming with SCTE-35 support, designed for professional broadcasters. Built with Next.js 15 and modern web technologies, it offers real-time monitoring, event management, and configuration tools with **one-click deployment**, **complete automation**, and **enhanced SCTE-35 handling** through SuperKabuki FFmpeg patch.
 
 ## ✨ Key Features
 
+### 🚀 **SuperKabuki FFmpeg Integration**
+- **Enhanced SCTE-35 Support**: SuperKabuki FFmpeg patch for superior SCTE-35 handling
+- **SCTE-35 Passthrough**: Preserve SCTE-35 markers during transcoding
+- **Descriptor Support**: Full CUEI descriptor (0x49455543) implementation
+- **Timestamp Preservation**: Accurate timestamp maintenance with `-copyts`
+- **One-Click Installation**: Automated SuperKabuki FFmpeg deployment
+
 ### 🚀 **One-Click Deployment**
 - **Automated installation** with `./full-deploy.sh`
-- **Complete system setup** including Nginx, RTMP, and security
+- **Complete system setup** including Nginx, RTMP, and SuperKabuki FFmpeg
 - **Zero configuration required** - just run the script
-- **Production-ready** out of the box
+- **Production-ready** out of the box with enhanced SCTE-35 capabilities
 
 ### 🎬 **Professional Stream Control**
 - **Real-time stream monitoring** with viewers, bitrate, audio levels, and latency
@@ -50,19 +57,32 @@ This application provides a complete control center for live TV streaming with S
 git clone https://github.com/shihan84/SCTE-streamcontrol.git
 cd SCTE-streamcontrol
 
-# Run the full deployment script
+# Run the full deployment script (includes SuperKabuki FFmpeg)
 ./full-deploy.sh
 ```
 
 **That's it!** The script will handle everything:
 - ✅ System updates and dependencies
+- ✅ SuperKabuki FFmpeg installation with SCTE-35 patch
 - ✅ Node.js, npm, and PM2 installation
 - ✅ Nginx with RTMP module configuration
 - ✅ Firewall and security setup
 - ✅ Application deployment and startup
 - ✅ Health checks and verification
 
-### **Option 2: Manual Installation**
+### **Option 2: Manual SuperKabuki FFmpeg Installation**
+```bash
+# Install SuperKabuki FFmpeg separately
+sudo ./scripts/install-superkabuki-ffmpeg.sh
+
+# Verify installation
+test-scte35.sh
+
+# Then deploy the application
+./full-deploy.sh
+```
+
+### **Option 3: Manual Installation**
 ```bash
 # System requirements
 - Ubuntu 20.04+ or Debian 10+
@@ -132,6 +152,24 @@ git pull origin master
 npm install
 npm run build
 pm2 reload scte35-app
+```
+
+### **SuperKabuki FFmpeg Usage Examples**
+```bash
+# Test SuperKabuki FFmpeg installation
+test-scte35.sh
+
+# Enhanced SCTE-35 transcoding (preserves markers)
+ffmpeg -copyts -i input.ts -map 0 -c:v libx265 -c:a aac -c:d copy -muxpreload 0 -muxdelay 0 output.ts
+
+# Stream copy with SCTE-35 preservation
+ffmpeg -copyts -ss 200 -i input.ts -map 0 -c copy -muxpreload 0 -muxdelay 0 output.ts
+
+# Extract SCTE-35 data for analysis
+ffmpeg -i input.ts -map 0:d -f data -y output.bin
+
+# Validate SCTE-35 preservation
+./scripts/validate-scte35.sh input.ts output.ts
 ```
 
 ### **Testing and Verification**
