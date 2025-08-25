@@ -74,7 +74,28 @@ cd SCTE-streamcontrol
 - ✅ Enhanced error handling and logging
 - ✅ Comprehensive testing and validation
 
-### **Option 2: Manual SuperKabuki FFmpeg Installation**
+### **Option 2: Manual Installation (Step-by-Step Guide)**
+```bash
+# Clone the repository
+git clone https://github.com/shihan84/SCTE-streamcontrol.git
+cd SCTE-streamcontrol
+
+# Run the comprehensive manual installation script
+chmod +x manual-installation.sh
+./manual-installation.sh
+```
+
+**This provides:**
+- ✅ **Step-by-step guidance** with detailed explanations
+- ✅ **Error recovery** options for each step
+- ✅ **Component verification** after each installation phase
+- ✅ **Comprehensive logging** for troubleshooting
+- ✅ **Manual control** over the entire installation process
+- ✅ **Full documentation** with troubleshooting guide
+
+**For detailed manual installation instructions, see:** [Manual Installation Guide](docs/MANUAL_INSTALLATION.md)
+
+### **Option 3: Manual SuperKabuki FFmpeg Installation**
 ```bash
 # Install SuperKabuki FFmpeg separately
 sudo ./scripts/install-superkabuki-ffmpeg.sh
@@ -86,7 +107,7 @@ test-scte35.sh
 ./deploy-full-with-ffmpeg.sh
 ```
 
-### **Option 3: Manual Installation**
+### **Option 4: Basic Manual Installation**
 ```bash
 # System requirements
 - Ubuntu 20.04+ or Debian 10+
@@ -377,8 +398,10 @@ The deployment script sets up PM2 with:
 ### **Documentation**
 - **Comprehensive documentation** included in this README
 - **Full deployment guide**: `docs/FULL_DEPLOYMENT_WITH_FFMPEG.md`
+- **Manual installation guide**: `docs/MANUAL_INSTALLATION.md`
 - **SuperKabuki integration**: `docs/SUPERKABUKI_INTEGRATION.md`
 - **Complete deployment with FFmpeg**: `./deploy-full-with-ffmpeg.sh`
+- **Manual installation script**: `./manual-installation.sh`
 - **Testing and verification**: `./verify-deployment.sh`
 - **Repository updates**: `./update-from-github.sh`
 - **Complete uninstallation**: `./uninstall.sh`
@@ -411,6 +434,30 @@ curl -I http://localhost/dash/test.mpd    # DASH stream
 2. **RTMP Stats**: Check `http://your-server-ip/stat`
 3. **Stream Test**: Use FFmpeg to publish a test stream
 4. **Playback Test**: Verify HLS/DASH streams work in players
+
+### **Manual Installation Verification**
+If you used the manual installation script, verify each component:
+```bash
+# Verify FFmpeg installation
+ffmpeg -version
+test-ffmpeg-scte35.sh
+
+# Verify Nginx installation
+sudo nginx -t
+sudo systemctl status nginx
+
+# Verify application status
+pm2 status
+pm2 logs
+
+# Verify all endpoints
+curl http://localhost/health
+curl http://localhost/stat
+curl http://localhost/
+
+# Check manual installation log
+cat /tmp/scte35-manual-install-*.log
+```
 
 ## 🚨 **Troubleshooting**
 
