@@ -79,7 +79,62 @@ chmod +x auto-install.sh
 - Quick testing and evaluation setups
 - Automated deployment pipelines
 
-### **Option 2: Full Deployment with FFmpeg**
+### **Option 2: Smart Installation (Intelligent Component Detection)**
+```bash
+# Clone the repository
+git clone https://github.com/shihan84/SCTE-streamcontrol.git
+cd SCTE-streamcontrol
+
+# Run the smart installation script (checks existing installations)
+chmod +x smart-install.sh
+./smart-install.sh
+```
+
+**This provides intelligent installation with:**
+- ✅ **Existing Component Detection** - Skips already installed packages
+- ✅ **Smart Step Skipping** - Only installs missing components
+- ✅ **Manual Installation Guidance** - Detailed manual installation instructions
+- ✅ **Status Tracking** - Remembers completed steps across runs
+- ✅ **Progress Optimization** - Faster installation by skipping completed steps
+- ✅ **Error Recovery** - Graceful handling of installation issues
+- ✅ **Comprehensive Logging** - Detailed logs for troubleshooting
+- ✅ **Manual Override** - Provides manual installation guidance for each component
+
+**Perfect for:**
+- Systems with partially installed components
+- Users who want to save time on reinstallation
+- Development environments with existing tools
+- Systems where some components are pre-installed
+- Users who want manual control over specific components
+
+### **Option 2: Smart Installation (Intelligent Component Detection)**
+```bash
+# Clone the repository
+git clone https://github.com/shihan84/SCTE-streamcontrol.git
+cd SCTE-streamcontrol
+
+# Run the smart installation script with component detection
+chmod +x smart-install.sh
+./smart-install.sh
+```
+
+**This provides intelligent installation with:**
+- ✅ **Component Detection**: Automatically detects already installed packages
+- ✅ **Skip Completed Steps**: Won't reinstall existing components
+- ✅ **Manual Installation Guidance**: Provides detailed manual installation instructions
+- ✅ **Smart Error Recovery**: Graceful handling of missing dependencies
+- ✅ **Step Tracking**: Tracks installation progress across multiple runs
+- ✅ **Detailed Logging**: Comprehensive logging for troubleshooting
+- ✅ **Status Persistence**: Remembers completed steps between script runs
+
+**Perfect for:**
+- Systems with partially installed components
+- Users who want to save time on reinstallation
+- Development environments with existing tools
+- Systems where some components are pre-installed
+- Users who want manual control over specific components
+
+### **Option 3: Full Deployment with FFmpeg**
 ```bash
 # Clone the repository
 git clone https://github.com/shihan84/SCTE-streamcontrol.git
@@ -429,6 +484,7 @@ The deployment script sets up PM2 with:
 - **Manual installation guide**: `docs/MANUAL_INSTALLATION.md`
 - **SuperKabuki integration**: `docs/SUPERKABUKI_INTEGRATION.md`
 - **Complete auto-installation**: `./auto-install.sh` (Recommended - Zero configuration)
+- **Smart installation**: `./smart-install.sh` (Intelligent component detection)
 - **Complete deployment with FFmpeg**: `./deploy-full-with-ffmpeg.sh`
 - **Manual installation script**: `./manual-installation.sh`
 - **Testing and verification**: `./verify-deployment.sh`
