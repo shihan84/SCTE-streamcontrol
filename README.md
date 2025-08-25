@@ -51,7 +51,35 @@ This application provides a complete control center for live TV streaming with S
 
 ## 🚀 **Quick Start - 5 Minute Deployment**
 
-### **Option 1: Full Deployment with FFmpeg (Recommended)**
+### **Option 1: Complete Auto-Installation (Recommended)**
+```bash
+# Clone the repository
+git clone https://github.com/shihan84/SCTE-streamcontrol.git
+cd SCTE-streamcontrol
+
+# Run the complete auto-installation script (zero configuration required)
+chmod +x auto-install.sh
+./auto-install.sh
+```
+
+**This provides the ultimate installation experience:**
+- ✅ **Zero Configuration Required** - Fully automated from start to finish
+- ✅ **Beautiful Progress Tracking** - Visual progress bars and spinners
+- ✅ **Comprehensive Error Handling** - Graceful error recovery and detailed logging
+- ✅ **Step-by-Step Guidance** - 12 detailed steps with clear explanations
+- ✅ **System Verification** - Each component is tested and verified
+- ✅ **Professional Output** - Colored output with professional banners
+- ✅ **Complete Installation** - Everything from system updates to final testing
+- ✅ **Production Ready** - Enterprise-grade deployment out of the box
+
+**Perfect for:**
+- Users who want a completely hands-off installation
+- Production deployments requiring reliability
+- Users with limited technical expertise
+- Quick testing and evaluation setups
+- Automated deployment pipelines
+
+### **Option 2: Full Deployment with FFmpeg**
 ```bash
 # Clone the repository
 git clone https://github.com/shihan84/SCTE-streamcontrol.git
@@ -74,7 +102,7 @@ cd SCTE-streamcontrol
 - ✅ Enhanced error handling and logging
 - ✅ Comprehensive testing and validation
 
-### **Option 2: Manual Installation (Step-by-Step Guide)**
+### **Option 3: Manual Installation (Step-by-Step Guide)**
 ```bash
 # Clone the repository
 git clone https://github.com/shihan84/SCTE-streamcontrol.git
@@ -400,6 +428,7 @@ The deployment script sets up PM2 with:
 - **Full deployment guide**: `docs/FULL_DEPLOYMENT_WITH_FFMPEG.md`
 - **Manual installation guide**: `docs/MANUAL_INSTALLATION.md`
 - **SuperKabuki integration**: `docs/SUPERKABUKI_INTEGRATION.md`
+- **Complete auto-installation**: `./auto-install.sh` (Recommended - Zero configuration)
 - **Complete deployment with FFmpeg**: `./deploy-full-with-ffmpeg.sh`
 - **Manual installation script**: `./manual-installation.sh`
 - **Testing and verification**: `./verify-deployment.sh`
